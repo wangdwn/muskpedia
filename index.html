@@ -180,6 +180,53 @@
     font-family:var(--mono); font-size:.74rem; color:var(--muted); line-height:1.9}
   footer .hl{color:var(--green)}
 
+  /* ---------- CHAT ---------- */
+  #chatFab{position:fixed; right:20px; bottom:20px; z-index:200; background:#000; color:var(--green);
+    border:1.5px solid var(--green); font-family:var(--mono); font-size:.85rem; padding:12px 16px;
+    cursor:pointer; border-radius:30px; box-shadow:0 0 18px rgba(0,255,65,.3); transition:transform .15s, box-shadow .15s}
+  #chatFab:hover{transform:translateY(-2px); box-shadow:0 0 26px rgba(0,255,65,.5)}
+  #chatPanel{position:fixed; top:0; right:0; height:100%; width:34%; min-width:360px; z-index:300;
+    background:#0c0c0c; border-left:2px solid var(--green-dim); display:flex; flex-direction:column;
+    transform:translateX(105%); transition:transform .28s; box-shadow:-10px 0 40px rgba(0,0,0,.7)}
+  #chatPanel.open{transform:none}
+  .chat-head{display:flex; align-items:center; justify-content:space-between; padding:14px 16px;
+    border-bottom:1px solid var(--card-edge); font-family:var(--mono)}
+  .chat-head .title{color:var(--green); font-size:.92rem; text-shadow:0 0 10px rgba(0,255,65,.4)}
+  .chat-head .gear,.chat-head .close{cursor:pointer; color:var(--muted); font-size:.9rem; margin-left:14px}
+  .chat-head .gear:hover,.chat-head .close:hover{color:var(--green)}
+  .mode-pill{font-family:var(--mono); font-size:.62rem; padding:1px 7px; border:1px solid var(--card-edge);
+    color:var(--muted); border-radius:10px; margin-left:8px}
+  .mode-pill.live{color:var(--green); border-color:var(--green-dim)}
+  .chat-body{flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:12px}
+  .msg{max-width:88%; padding:10px 12px; font-size:.88rem; line-height:1.55; white-space:pre-wrap; word-break:break-word}
+  .msg.user{align-self:flex-end; background:#2a2a2a; border-radius:10px 10px 2px 10px}
+  .msg.ai{align-self:flex-start; background:#080808; border:1px solid var(--green-dim); border-radius:10px 10px 10px 2px}
+  .msg.ai b{color:var(--green)}
+  .msg .src{display:block; margin-top:8px; font-family:var(--mono); font-size:.66rem; color:#666}
+  .msg .kb{color:var(--green); border-bottom:1px dotted var(--green-dim); cursor:pointer}
+  .msg.typing{color:var(--muted); font-family:var(--mono)}
+  .chat-input{display:flex; gap:8px; padding:12px; border-top:1px solid var(--card-edge)}
+  .chat-input textarea{flex:1; background:#000; border:1px solid var(--card-edge); color:var(--text);
+    font-family:var(--sans); font-size:.88rem; padding:9px 11px; resize:none; max-height:120px; outline:none}
+  .chat-input textarea:focus{border-color:var(--green-dim)}
+  .chat-input button{background:#000; color:var(--green); border:1px solid var(--green); font-family:var(--mono);
+    font-size:1.1rem; width:46px; cursor:pointer}
+  .chat-input button:hover{background:rgba(0,255,65,.1)}
+  .chat-cfg{padding:14px 16px; border-top:1px solid var(--card-edge); font-family:var(--mono); font-size:.74rem; display:none}
+  .chat-cfg.show{display:block}
+  .chat-cfg label{display:block; color:var(--muted); margin:10px 0 4px}
+  .chat-cfg input,.chat-cfg select{width:100%; background:#000; border:1px solid var(--card-edge); color:var(--green);
+    font-family:var(--mono); font-size:.78rem; padding:7px 9px; outline:none}
+  .chat-cfg .hint{color:#666; margin-top:10px; line-height:1.55}
+  .chat-cfg .row{display:flex; gap:8px; margin-top:12px}
+  .chat-cfg .save{background:#000; color:var(--green); border:1px solid var(--green); padding:7px 14px; cursor:pointer; font-family:var(--mono)}
+  .chat-cfg .clr{background:#000; color:var(--muted); border:1px solid var(--card-edge); padding:7px 14px; cursor:pointer; font-family:var(--mono)}
+  @media(max-width:640px){
+    #chatPanel{width:100%; min-width:0}
+    #chatFab{right:16px; bottom:16px; border-radius:50%; width:54px; height:54px; padding:0; font-size:1.4rem}
+    #chatFab .fabtext{display:none}
+  }
+
   @media(max-width:640px){
     .grid.cols{grid-template-columns:1fr}
     .search-wrap{margin-left:0; width:100%}
@@ -272,6 +319,30 @@
   一个独立知识库 · 数据来源：艾萨克森《马斯克传》+ 公开访谈<br>
   Made with <span class="hl">Musk's First Principles</span>
 </footer>
+
+<button id="chatFab">🤖<span class="fabtext"> 问马斯克</span></button>
+<div id="chatPanel">
+  <div class="chat-head">
+    <span class="title">马斯克下午茶 · Beta<span class="mode-pill" id="modePill">预设模式</span></span>
+    <span><span class="gear" id="chatGear">⚙</span><span class="close" id="chatClose">✕</span></span>
+  </div>
+  <div class="chat-cfg" id="chatCfg">
+    <label>后端接口地址（你的 Cloudflare Worker / FastAPI URL）</label>
+    <input id="cfgEndpoint" type="text" placeholder="https://your-worker.workers.dev  留空＝预设模式">
+    <label>模型</label>
+    <select id="cfgModel">
+      <option value="deepseek-chat">deepseek-chat（便宜，推荐）</option>
+      <option value="deepseek-reasoner">deepseek-reasoner（更强，更贵）</option>
+    </select>
+    <div class="hint">⚠ API Key 放在后端，<b style="color:#ff6600">不要</b>填进网页。这里只存接口地址，保存在你本机浏览器。</div>
+    <div class="row"><button class="save" id="cfgSave">保存</button><button class="clr" id="cfgClear">清空对话</button></div>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-input">
+    <textarea id="chatInput" placeholder="问问关于马斯克的事…（回车发送）" rows="1"></textarea>
+    <button id="chatSend">→</button>
+  </div>
+</div>
 
 <script>
 /* ============ DATA ============ */
@@ -630,6 +701,136 @@ function graphSearch(q){
   window._gnode.style("opacity",d=>d.name.toLowerCase().includes(q)?1:0.12);
   window._gnode.select("circle").attr("stroke-width",d=>d.name.toLowerCase().includes(q)?3:1.5);
 }
+
+
+/* ============ CHAT (v3) ============ */
+const PRESETS=[
+ {kw:["第一性","原理","first principle"],a:"**第一性原理**是马斯克最底层的思维方式：不靠类比（“别人都这么做”），而是把问题拆到物理事实，再从头重建。\n经典例子：他算出火箭的原材料成本只占售价约2%，于是推断火箭能便宜两个数量级——这就是SpaceX自研可回收火箭的逻辑起点。",s:"来源：核心概念卡片 · 艾萨克森《马斯克传》"},
+ {kw:["五步","工作法","五步法"],a:"**五步工作法**，顺序不能乱：\n**①质疑**每条需求（并让提需求的人具名）→ **②删除**不必要的零件/流程 → **③优化**剩下的 → **④加速**节拍 → **⑤自动化**。\n最常见的错误是跳过前两步直接自动化——等于把不该存在的步骤工业化。",s:"来源：核心概念卡片"},
+ {kw:["格温","肖特维尔","shotwell","二把手"],a:"**格温·肖特维尔**是SpaceX总裁兼COO，公司真正的二把手和日常运营核心。\n马斯克情绪激烈时，是她在后方稳住组织、对接客户和员工，把愿景翻译成能落地的运营。被很多人视为SpaceX能长期运转的关键。",s:"来源：关键人物卡片"},
+ {kw:["猎鹰","falcon","炸了三次","三次","爆炸"],a:"**猎鹰1号**前三次发射接连失败：燃料管路腐蚀起火、二级晃动失控、一二级分离时相撞。\n马斯克没有推诿，亲临发射场逐个排查根因，把每次爆炸当**数据**。2008年第四次成功入轨，公司起死回生。\n（故障细节确定性：约80%）",s:"来源：经典案例卡片 · 公开报道"},
+ {kw:["睡工厂","睡袋","住工厂"],a:"2018年**Model 3产能地狱**期间，周产卡在2000辆、目标5000辆。马斯克认为问题不在会议室、在产线上。\n他把睡袋搬进弗里蒙特工厂，亲自走产线、调节拍、开掉只会做PPT汇报的经理。约**6周后**达到5000辆/周。",s:"来源：经典案例卡片 · 马斯克传"},
+ {kw:["后悔","遗憾"],a:"他公开提到的“后悔”，多集中在**用人和发推**两类——比如某些冲动推文带来的麻烦。\n但马斯克很少长时间停留在后悔上，更倾向把失败当数据往前走。\n（主观问题，确定性：约60%）",s:"来源：公开访谈（谨慎参考）"},
+ {kw:["乔布斯","jobs","谁厉害"],a:"没有标准答案，两人风格不同：\n**乔布斯**强在产品直觉、审美和叙事，把现有技术整合成极致体验；\n**马斯克**强在第一性原理驱动的硬核工程，敢碰火箭、电车这类重资产高风险领域。\n一个是“产品艺术家”，一个是“工程赌徒”。",s:"来源：综合评述（观点性）"},
+ {kw:["x æ","a-12","孩子名","儿子名字","起名"],a:"**X Æ A-12** 是马斯克和音乐人Grimes给孩子起的名字：X代表未知变量，Æ是两人对“AI/爱”的写法，A-12取自他们喜欢的侦察机。\n因加州法规不允许数字，后登记改为 **X Æ A-Xii**。",s:"来源：公开报道 · Grimes社交媒体"},
+ {kw:["睡几","睡眠","几个小时","作息"],a:"按他公开说法，通常睡**6小时左右**，再少效率反而下降。冲刺期会更少、甚至睡在工厂。\n（确定性：约70%，不同年份说法略有出入）",s:"来源：公开访谈"},
+ {kw:["佩服","崇拜","偶像","敬佩"],a:"他公开表达敬意的对象里，常被提到**尼古拉·特斯拉**（公司名来源），以及一些科幻作家和工程先驱。\n（主观问题，确定性：约55%）",s:"来源：公开访谈"},
+ {kw:["twitter","推特","买推特","收购twitter","x平台"],a:"他公开理由是**言论自由**、打造“数字城镇广场”。\n过程很戏剧：440亿要约→试图退出→法律压力下被迫完成→更名**X**→大规模裁员重构，并衍生出后来的**xAI**。争议至今未平。",s:"来源：经典案例卡片 · 公开报道"},
+ {kw:["火星","starship","去火星","mars"],a:"**星舰**是火星计划的运载核心。马斯克给过很多时间表但屡次推迟，目前更现实的路径是先完成无人货运验证。\n**确定性：约40%**——他的时间表历史上一直偏乐观，谨慎参考。",s:"来源：公开发言（时间表波动大）"},
+ {kw:["ai风险","人工智能风险","ai危险","怎么看ai"],a:"马斯克是**AI风险**的长期警示者，多次称其为人类最大生存威胁之一，主张监管。\n应对上：早期参与创立OpenAI→退出并批评其转向→亲自创立**xAI**，想做“更追求真相”的AI。",s:"来源：公开访谈 · xAI"},
+ {kw:["最喜欢","喜欢哪","车型","哪辆车"],a:"他在不同场合表达过对 **Model S Plaid** 性能的偏爱，也对 **Cybertruck** 投入了很深的个人情感。\n（主观，确定性：约60%）",s:"来源：公开访谈"},
+ {kw:["最失败的收购","失败的收购","收购失败"],a:"争议最大的是 **Twitter（X）收购**：440亿高价、随后估值大幅缩水，被很多人视为财务败笔。\n但马斯克更愿意从长期战略（言论平台+AI数据）角度辩护，是否“失败”取决于时间维度。",s:"来源：公开报道（评价性）"},
+ {kw:["对员工","员工要求","加班","工作强度","hardcore"],a:"核心是**硬核（hardcore）**：长时间、高强度、结果导向，拒绝PPT式汇报，要求直接讲数据。\n接管Twitter时他发过著名的“hardcore”最后通牒，要求员工承诺极端投入，否则离开。",s:"来源：核心概念卡片 · 公开报道"},
+ {kw:["穆勒","muller","mueller","发动机之父"],a:"**汤姆·穆勒**是梅林发动机核心设计者、SpaceX早期推进系统的灵魂，后期离开公司。\n外界报道多与战略方向、个人阶段有关，**具体内情公开信息有限，确定性：约50%**，不臆测。",s:"来源：关键人物卡片（细节谨慎）"},
+ {kw:["弟弟","金巴尔","kimbal","兄弟"],a:"弟弟**金巴尔·马斯克**是第一段创业Zip2的合伙人，早期两人睡办公室、共用一台电脑写代码。\n至今关系亲密，长期担任特斯拉/SpaceX董事，后来自己做餐饮和食物科技。",s:"来源：关键人物卡片 · 马斯克传"},
+ {kw:["母亲","妈妈","梅耶","maye"],a:"母亲**梅耶·马斯克**在艰难处境中独自养大三个孩子，给了埃隆“**你可以去做任何事**”的底层心理安全感。\n这被认为是他敢反复下高风险决策的性格根源之一。",s:"来源：关键人物卡片 · 马斯克传"},
+ {kw:["管理两家","两家公司","同时管","分配时间","多家公司"],a:"靠几条：**扁平化指令链**（越层直接找负责人）、**问题导向**（哪有问题去哪，如睡工厂）、**高度授权运营**（如肖特维尔管SpaceX日常），自己聚焦工程和关键决策。",s:"来源：核心概念卡片"},
+ {kw:["中国建厂","建厂","上海","中国工厂","超级工厂"],a:"特斯拉**上海超级工厂**已是事实：2019年落成投产，是特斯拉全球重要产能和出口基地。\n若你问的是“是否新增/扩建”，属于动态新闻，建议查最新消息确认。",s:"来源：公开事实（上海工厂已建成）"},
+ {kw:["比亚迪","byd"],a:"早年马斯克曾对比亚迪不以为然（一段被反复引用的访谈嘲笑），但近年公开**改口认可**其竞争力和产品进步。态度有明显转变。",s:"来源：公开访谈（前后态度变化）"},
+ {kw:["脑机","neuralink","商用","植入","芯片"],a:"**Neuralink**已进入人体临床试验，目标先帮助瘫痪等患者恢复能力。\n大规模“健康人增强”式商用还很远，没有可靠时间表。**确定性：约45%**。",s:"来源：Neuralink · 公开报道"},
+ {kw:["隧道","boring","玩具","挖隧道","无聊公司"],a:"**The Boring Company**最初带点玩笑性质（连名字和喷火枪都是梗），但已落地实际项目，如拉斯维加斯会展中心地下环线。\n规模和实用性仍受质疑，介于认真工程和实验之间。",s:"来源：公司版图卡片 · 公开报道"},
+ {kw:["paypal","贝宝","离开paypal","x.com"],a:"严格说他不是主动离开——在度蜜月途中**被董事会换下CEO**，后eBay收购PayPal，他作为大股东套现，这笔钱成了SpaceX和特斯拉的本金。",s:"来源：马斯克传 · 公开报道"},
+ {kw:["盖茨","gates","比尔"],a:"两人关系**比较紧张**。公开摩擦点包括盖茨做空特斯拉股票、以及气候/慈善议题上的分歧，马斯克多次公开表达不满。",s:"来源：公开报道 · 双方表态"},
+ {kw:["激光雷达","lidar","纯视觉","autopilot","雷达"],a:"马斯克坚持**纯视觉路线**：人开车靠眼睛+大脑，自动驾驶也该靠摄像头+神经网络，他称激光雷达是“昂贵的拐杖”。\n这是行业里争议很大的技术押注，多数对手仍用激光雷达。",s:"来源：公开发言（技术路线之争）"},
+ {kw:["星链","starlink","赚钱","盈利"],a:"**星链**用户和营收持续增长，SpaceX多次表示已现金流转正/接近盈利，它也是反哺火箭研发的重要现金来源。\n因未上市财务不完全透明，**确定性：约65%**。",s:"来源：公开发言（未上市）"},
+ {kw:["退休","退下","不干了"],a:"基本不打算传统意义“退休”。他多次表示想工作到做不动为止，重心放在火星等长期使命上。\n（主观表态，确定性：约70%）",s:"来源：公开访谈"},
+ {kw:["xai","openai","grok"],a:"马斯克是**OpenAI联合创始人之一**，早期出资，后因方向分歧（营利化、与微软绑定）**退出并公开批评**，甚至起诉。\n之后他创立**xAI**（产品Grok），定位“更追求真相”的竞争者。两者现为对手。",s:"来源：公开报道 · xAI"}
+];
+const FALLBACK="这个问题我在知识库里暂时找不到可靠来源，先不编。\n你可以点右上角 ⚙ 配置后端接口，接入真实模型来回答更开放的问题。";
+
+const KBENTITIES=[...concepts,...people,...cases,...companies]
+  .map(x=>({name:x.name,id:x.id})).sort((a,b)=>b.name.length-a.name.length);
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function fmt(text){
+  let o=esc(text).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
+  KBENTITIES.forEach(e=>{
+    if(o.indexOf(e.name)>=0 && o.indexOf('data-jump="'+e.id+'"')<0)
+      o=o.split(e.name).join('<span class="kb" data-jump="'+e.id+'">'+e.name+'</span>');
+  });
+  return o;
+}
+
+let chatLog=[]; try{chatLog=JSON.parse(localStorage.getItem("muskpedia_chat")||"[]");}catch(e){}
+let endpoint="", chatModel="deepseek-chat";
+try{endpoint=localStorage.getItem("muskpedia_endpoint")||""; chatModel=localStorage.getItem("muskpedia_model")||"deepseek-chat";}catch(e){}
+
+const chatPanel=document.getElementById("chatPanel");
+const chatBody=document.getElementById("chatBody");
+const chatInput=document.getElementById("chatInput");
+const modePill=document.getElementById("modePill");
+
+function refreshMode(){
+  if(endpoint){modePill.textContent="实时 · "+chatModel; modePill.classList.add("live");}
+  else{modePill.textContent="预设模式"; modePill.classList.remove("live");}
+}
+function saveLog(){try{localStorage.setItem("muskpedia_chat",JSON.stringify(chatLog.slice(-40)));}catch(e){}}
+
+function renderMsg(m){
+  const d=document.createElement("div"); d.className="msg "+(m.role==="user"?"user":"ai");
+  if(m.role==="user") d.textContent=m.text;
+  else d.innerHTML=fmt(m.text)+(m.src?'<span class="src">'+esc(m.src)+'</span>':"");
+  chatBody.appendChild(d); chatBody.scrollTop=chatBody.scrollHeight; return d;
+}
+function pushMsg(role,text,src){const m={role,text,src:src||""}; chatLog.push(m); renderMsg(m); saveLog();}
+
+function matchPreset(q){
+  const low=q.toLowerCase();
+  for(const p of PRESETS){ if(p.kw.some(k=>low.includes(k.toLowerCase()))) return p; }
+  return null;
+}
+async function askBackend(question){
+  const hist=chatLog.filter(m=>m.role==="user"||m.role==="ai").slice(-10)
+    .map(m=>({role:m.role==="ai"?"assistant":"user",content:m.text}));
+  hist.push({role:"user",content:question});
+  const r=await fetch(endpoint,{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({messages:hist,model:chatModel})});
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  const data=await r.json();
+  if(data.error) throw new Error(data.error);
+  return data.text||"（后端没返回内容）";
+}
+
+async function send(){
+  const q=chatInput.value.trim(); if(!q) return;
+  chatInput.value=""; chatInput.style.height="auto";
+  pushMsg("user",q);
+  if(endpoint){
+    const t=document.createElement("div"); t.className="msg ai typing"; t.textContent="思考中…"; chatBody.appendChild(t);
+    chatBody.scrollTop=chatBody.scrollHeight;
+    try{ const ans=await askBackend(q); t.remove(); pushMsg("ai",ans); }
+    catch(err){ t.remove(); const p=matchPreset(q);
+      if(p) pushMsg("ai",p.a,p.s+"（后端调用失败，已回退预设）");
+      else pushMsg("ai","后端没连上（"+err.message+"），先回退预设模式，但这题预设里也没有。\n检查一下 ⚙ 里的接口地址，或确认 Worker 已部署。"); }
+  }else{
+    const p=matchPreset(q);
+    if(p) pushMsg("ai",p.a,p.s); else pushMsg("ai",FALLBACK);
+  }
+}
+
+// wire up
+document.getElementById("chatFab").onclick=()=>{chatPanel.classList.add("open"); if(!chatLog.length) pushMsg("ai","嘿，我是马斯克知识库助手。\n试试问我：**第一性原理是什么**？**马斯克为什么睡工厂**？**xAI 和 OpenAI 什么关系**？",""); };
+document.getElementById("chatClose").onclick=()=>chatPanel.classList.remove("open");
+document.getElementById("chatSend").onclick=send;
+chatInput.addEventListener("keydown",e=>{ if(e.key==="Enter"&&!e.shiftKey){e.preventDefault(); send();} });
+chatInput.addEventListener("input",()=>{chatInput.style.height="auto"; chatInput.style.height=Math.min(chatInput.scrollHeight,120)+"px";});
+
+const cfg=document.getElementById("chatCfg");
+document.getElementById("chatGear").onclick=()=>{cfg.classList.toggle("show");
+  document.getElementById("cfgEndpoint").value=endpoint; document.getElementById("cfgModel").value=chatModel;};
+document.getElementById("cfgSave").onclick=()=>{
+  endpoint=document.getElementById("cfgEndpoint").value.trim();
+  chatModel=document.getElementById("cfgModel").value;
+  try{localStorage.setItem("muskpedia_endpoint",endpoint); localStorage.setItem("muskpedia_model",chatModel);}catch(e){}
+  refreshMode(); cfg.classList.remove("show");
+  pushMsg("ai", endpoint?("已切到**实时模式**（"+chatModel+"）。现在每条都会调你的后端。"):"已切回**预设模式**。",""); };
+document.getElementById("cfgClear").onclick=()=>{chatLog=[]; saveLog(); chatBody.innerHTML=""; cfg.classList.remove("show");};
+
+chatBody.addEventListener("click",e=>{ const k=e.target.closest(".kb"); if(k){ chatPanel.classList.remove("open"); jumpToCard(k.dataset.jump);} });
+
+// restore history + mode on load
+refreshMode();
+chatLog.forEach(renderMsg);
+
 </script>
 </body>
 </html>
