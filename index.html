@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MuskPedia · 马斯克知识库</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0a0a; --card:#141414; --card-edge:#1f1f1f;
+    --green:#00ff41; --green-dim:#0a6e23;
+    --orange:#ff6600; --red:#ff3333; --blue:#3399ff;
+    --text:#e0e0e0; --muted:#7a7a7a;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--text); font-family:var(--sans);
+    line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  /* faint scanline atmosphere */
+  body::after{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:9999;
+    background:repeating-linear-gradient(0deg,rgba(0,255,65,0.02) 0 1px,transparent 1px 3px);
+    mix-blend-mode:screen; opacity:.5;
+  }
+  a{color:inherit;text-decoration:none}
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:100; background:rgba(10,10,10,.92);
+    backdrop-filter:blur(8px); border-bottom:2px solid var(--green-dim);
+    display:flex; align-items:center; gap:18px; padding:12px 22px; flex-wrap:wrap;
+  }
+  .logo{font-family:var(--mono); font-weight:700; color:var(--green); font-size:1rem;
+    letter-spacing:.5px; text-shadow:0 0 12px rgba(0,255,65,.5); white-space:nowrap}
+  .logo .blink{animation:blink 1.1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .navlinks{display:flex; gap:16px; font-family:var(--mono); font-size:.8rem; flex-wrap:wrap}
+  .navlinks a{color:var(--muted); transition:color .15s, text-shadow .15s; cursor:pointer}
+  .navlinks a:hover,.navlinks a.active{color:var(--green); text-shadow:0 0 8px rgba(0,255,65,.6)}
+  .navlinks a.disabled{color:#3a3a3a; cursor:not-allowed}
+  .navlinks a.disabled:hover{color:#3a3a3a;text-shadow:none}
+  .search-wrap{margin-left:auto; position:relative}
+  #search{
+    background:#000; border:1px solid var(--green-dim); color:var(--green);
+    font-family:var(--mono); font-size:.8rem; padding:7px 12px 7px 26px; width:190px;
+    outline:none; transition:border-color .15s, box-shadow .15s;
+  }
+  #search:focus{border-color:var(--green); box-shadow:0 0 10px rgba(0,255,65,.3)}
+  #search::placeholder{color:#3a5a3a}
+  .search-wrap::before{content:">"; position:absolute; left:9px; top:50%; transform:translateY(-50%);
+    color:var(--green); font-family:var(--mono); font-size:.8rem}
+
+  /* ---------- HERO ---------- */
+  header.hero{
+    position:relative; text-align:center; padding:90px 22px 70px; overflow:hidden;
+    border-bottom:2px solid var(--card-edge);
+  }
+  .hexbg{position:absolute; inset:0; z-index:0; opacity:.5;
+    background-image:
+      repeating-linear-gradient(60deg, rgba(0,255,65,.05) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(-60deg, rgba(0,255,65,.05) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(0deg, rgba(0,255,65,.04) 0 1px, transparent 1px 38px);
+    -webkit-mask-image:radial-gradient(ellipse 70% 80% at 50% 40%, #000 0%, transparent 75%);
+    mask-image:radial-gradient(ellipse 70% 80% at 50% 40%, #000 0%, transparent 75%);
+    animation:drift 28s linear infinite;
+  }
+  @keyframes drift{to{background-position:88px 0, -88px 0, 0 76px}}
+  .hero-inner{position:relative; z-index:1}
+  .hero .eyebrow{font-family:var(--mono); color:var(--green); font-size:.75rem;
+    letter-spacing:3px; margin-bottom:18px; opacity:.85}
+  .hero h1{font-family:var(--mono); font-weight:800; font-size:clamp(2rem,6vw,4rem);
+    line-height:1.05; color:#fff; text-shadow:0 0 26px rgba(0,255,65,.35)}
+  .hero h1 .arrow{color:var(--green)}
+  .hero .sub{margin-top:18px; font-family:var(--mono); color:var(--muted);
+    font-size:clamp(.85rem,2.4vw,1.05rem); letter-spacing:1px}
+  .hero .sub b{color:var(--green); font-weight:600}
+
+  /* ---------- VIEW SWITCH ---------- */
+  .modebar{display:flex; justify-content:center; gap:0; padding:26px 22px 0}
+  .modebar button{
+    background:#000; color:var(--muted); border:1px solid var(--card-edge);
+    font-family:var(--mono); font-size:.82rem; padding:9px 20px; cursor:pointer;
+    transition:all .15s; letter-spacing:.5px;
+  }
+  .modebar button.on{color:var(--green); border-color:var(--green);
+    box-shadow:0 0 14px rgba(0,255,65,.25) inset}
+  .modebar button:first-child{border-right:none}
+
+  /* ---------- SECTIONS / CARDS ---------- */
+  main{max-width:1180px; margin:0 auto; padding:0 22px 70px}
+  section{padding-top:56px; scroll-margin-top:64px}
+  .sec-head{display:flex; align-items:baseline; gap:14px; margin-bottom:26px;
+    border-left:4px solid var(--green); padding-left:14px}
+  .sec-head h2{font-family:var(--mono); font-size:1.35rem; color:#fff; font-weight:700}
+  .sec-head .tag{font-family:var(--mono); font-size:.72rem; color:var(--muted);
+    text-transform:uppercase; letter-spacing:1.5px}
+
+  .grid{display:grid; gap:14px}
+  .grid.cols{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+
+  .card{
+    background:var(--card); border:1px solid var(--card-edge); border-left:3px solid var(--green-dim);
+    padding:18px 18px 16px; cursor:pointer; position:relative; transition:border-color .18s, transform .12s, box-shadow .18s;
+  }
+  .card:hover{border-left-color:var(--green); transform:translateY(-2px);
+    box-shadow:0 6px 24px rgba(0,0,0,.6), -3px 0 14px rgba(0,255,65,.12)}
+  .card .rank{position:absolute; top:12px; right:14px; font-family:var(--mono);
+    font-size:.7rem; color:#333}
+  .card h3{font-family:var(--mono); font-size:1.05rem; color:#fff; padding-right:34px}
+  .cites{display:inline-block; font-family:var(--mono); font-size:.68rem; color:var(--green);
+    border:1px solid var(--green-dim); padding:2px 7px; margin:9px 0; letter-spacing:.5px}
+  .card .def{color:var(--text); font-size:.92rem}
+  .card .ex{color:var(--muted); font-size:.82rem; margin-top:8px; font-family:var(--mono)}
+  .card .ex::before{content:"▸ 事件 "; color:var(--green)}
+  .card .more{
+    max-height:0; overflow:hidden; transition:max-height .3s ease; color:#bdbdbd;
+    font-size:.88rem; border-top:1px dashed var(--card-edge); margin-top:0; padding-top:0;
+  }
+  .card.open .more{max-height:420px; margin-top:14px; padding-top:12px}
+  .card .toggle{font-family:var(--mono); font-size:.7rem; color:var(--green-dim); margin-top:12px}
+  .card.open .toggle{color:var(--green)}
+  .card.flash{animation:flash .9s ease}
+  @keyframes flash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 2px var(--green),0 0 26px rgba(0,255,65,.5)}}
+
+  /* people-specific */
+  .person-top{display:flex; align-items:center; gap:14px}
+  .avatar{flex:0 0 auto; width:52px; height:52px}
+  .status{font-family:var(--mono); font-size:.7rem; margin-top:9px; letter-spacing:.5px}
+  .status.in{color:var(--green)} .status.out{color:var(--red)}
+  .person-meta{font-family:var(--mono); font-size:.78rem; color:var(--muted)}
+
+  /* case-specific */
+  .case-time{font-family:var(--mono); color:var(--green); font-size:.78rem; letter-spacing:1px}
+  .case-row{margin-top:9px; font-size:.86rem}
+  .case-row .k{color:var(--muted); font-family:var(--mono); font-size:.72rem; display:block; margin-top:7px}
+
+  /* company-specific */
+  .card.company{border-left-color:var(--blue)}
+  .card.company:hover{border-left-color:var(--blue); box-shadow:0 6px 24px rgba(0,0,0,.6), -3px 0 14px rgba(51,153,255,.18)}
+  .card.company .cites{color:var(--blue); border-color:#1d4f80}
+
+  .empty{color:var(--muted); font-family:var(--mono); text-align:center; padding:40px; display:none}
+
+  /* ---------- GRAPH ---------- */
+  #graphView{display:none}
+  .graph-shell{position:relative; border:1px solid var(--card-edge); background:#060606;
+    margin-top:24px; height:72vh; min-height:460px; overflow:hidden}
+  #graph{width:100%; height:100%; display:block; cursor:grab}
+  #graph:active{cursor:grabbing}
+  .legend{position:absolute; top:12px; left:12px; font-family:var(--mono); font-size:.72rem;
+    background:rgba(0,0,0,.6); border:1px solid var(--card-edge); padding:10px 12px; line-height:1.9}
+  .legend span{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:7px; vertical-align:middle}
+  .ghint{position:absolute; bottom:10px; left:12px; font-family:var(--mono); font-size:.68rem; color:#444}
+  .detail{
+    position:absolute; top:0; right:0; width:300px; max-width:78%; height:100%;
+    background:rgba(8,8,8,.96); border-left:1px solid var(--green-dim); padding:20px 18px;
+    transform:translateX(100%); transition:transform .25s; overflow-y:auto; font-size:.88rem;
+  }
+  .detail.show{transform:none}
+  .detail .x{position:absolute; top:12px; right:14px; cursor:pointer; color:var(--muted); font-family:var(--mono)}
+  .detail .dtype{font-family:var(--mono); font-size:.68rem; letter-spacing:1.5px; text-transform:uppercase}
+  .detail h3{font-family:var(--mono); color:#fff; margin:6px 0 4px; font-size:1.15rem}
+  .detail .dcites{font-family:var(--mono); font-size:.72rem; color:var(--green); margin-bottom:12px}
+  .detail p{color:#cfcfcf; margin-bottom:10px}
+  .detail .conn{font-family:var(--mono); font-size:.74rem; color:var(--muted); margin-top:14px;
+    border-top:1px dashed var(--card-edge); padding-top:12px}
+  .detail .conn b{color:var(--text)}
+  .detail .jump{display:inline-block; margin-top:16px; font-family:var(--mono); font-size:.74rem;
+    color:var(--green); border:1px solid var(--green-dim); padding:6px 12px; cursor:pointer}
+  .detail .jump:hover{background:rgba(0,255,65,.1)}
+  .node-label{font-family:var(--mono); font-size:10px; fill:#fff; pointer-events:none;
+    paint-order:stroke; stroke:#000; stroke-width:3px; stroke-linejoin:round}
+
+  /* ---------- FOOTER ---------- */
+  footer{border-top:2px solid var(--card-edge); text-align:center; padding:30px 22px;
+    font-family:var(--mono); font-size:.74rem; color:var(--muted); line-height:1.9}
+  footer .hl{color:var(--green)}
+
+  @media(max-width:640px){
+    .grid.cols{grid-template-columns:1fr}
+    .search-wrap{margin-left:0; width:100%}
+    #search{width:100%}
+    nav{gap:12px}
+    .detail{width:100%; max-width:100%}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .hexbg,.logo .blink{animation:none}
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">MuskPedia<span class="blink">_</span> · 马斯克知识库</div>
+  <div class="navlinks" id="navlinks">
+    <a data-target="concepts">核心概念</a>
+    <a data-target="people">关键人物</a>
+    <a data-target="cases">经典案例</a>
+    <a data-target="companies">公司版图</a>
+    <a data-mode="graph">🕸️ 知识图谱</a>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="text" placeholder="搜索 概念/人物/案例…" autocomplete="off">
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hexbg"></div>
+  <div class="hero-inner">
+    <div class="eyebrow">FIRST PRINCIPLES // 物理层 → 工程层</div>
+    <h1>从物理层 <span class="arrow">→</span> 到工程层</h1>
+    <div class="sub">第一性原理 <b>×</b> 五步工作法 <b>×</b> 风险不对称决策</div>
+  </div>
+</header>
+
+<div class="modebar">
+  <button id="btnList" class="on">▤ 列表模式</button>
+  <button id="btnGraph">🕸️ 知识图谱</button>
+</div>
+
+<main>
+  <!-- LIST VIEW -->
+  <div id="listView">
+    <section id="concepts">
+      <div class="sec-head"><h2>核心思维</h2><span class="tag">按引用频次排列</span></div>
+      <div class="grid cols" id="conceptsGrid"></div>
+    </section>
+
+    <section id="people">
+      <div class="sec-head"><h2>关键人物</h2><span class="tag">改变马斯克命运的人</span></div>
+      <div class="grid cols" id="peopleGrid"></div>
+    </section>
+
+    <section id="cases">
+      <div class="sec-head"><h2>关键时刻</h2><span class="tag">五次决定命运的战役</span></div>
+      <div class="grid cols" id="casesGrid"></div>
+    </section>
+
+    <section id="companies">
+      <div class="sec-head"><h2>公司版图</h2><span class="tag">五家公司 · 一个使命</span></div>
+      <div class="grid cols" id="companiesGrid"></div>
+    </section>
+
+    <div class="empty" id="empty">// 无匹配结果 —— 换个关键词试试</div>
+  </div>
+
+  <!-- GRAPH VIEW -->
+  <div id="graphView">
+    <section id="graphSec" style="padding-top:30px">
+      <div class="sec-head"><h2>知识图谱</h2><span class="tag">概念 · 人物 · 案例 · 公司 的连接网络</span></div>
+      <div class="graph-shell">
+        <svg id="graph"></svg>
+        <div class="legend">
+          <div><span style="background:#00ff41"></span>概念</div>
+          <div><span style="background:#ff6600"></span>人物</div>
+          <div><span style="background:#ff3333"></span>案例</div>
+          <div><span style="background:#3399ff"></span>公司</div>
+        </div>
+        <div class="ghint">拖拽移动 · 悬停/点击高亮 · 双击跳转卡片 · 滚轮缩放</div>
+        <div class="detail" id="detail"></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  一个独立知识库 · 数据来源：艾萨克森《马斯克传》+ 公开访谈<br>
+  Made with <span class="hl">Musk's First Principles</span>
+</footer>
+
+<script>
+/* ============ DATA ============ */
+const concepts = [
+  {id:"c1",name:"第一性原理",cites:87,def:"回到物理学的真理层重新推理，不用类比思维。",ex:"猎鹰1号火箭成本从5000万做到200万",
+   full:"类比思维是\"别人这么做所以我也这么做\"；第一性原理是把事物拆到不能再拆的物理事实，再从那里往上重建。马斯克算火箭：铝、钛、铜、碳纤维的原材料成本只占售价的约2%，于是结论是火箭应该能便宜两个数量级——这成了SpaceX自研、可回收的底层逻辑。"},
+  {id:"c2",name:"五步工作法",cites:63,def:"质疑→删除→优化→加速→自动化，顺序不可逆。",ex:"Model 3产能从2000到5000辆/周",
+   full:"① 质疑每条需求（并把提需求的人具名）；② 删除不必要的零件/流程，删狠一点；③ 优化剩下的；④ 加速节拍；⑤ 最后才自动化。最常见的错误是跳过前两步直接自动化——把本不该存在的步骤自动化，等于把愚蠢工业化。"},
+  {id:"c3",name:"风险不对称决策",cites:52,def:"不做这件事的长期风险 > 做这件事的短期损失。",ex:"2008年把所有钱押在SpaceX第四次发射",
+   full:"决策看的不是\"会不会失败\"，而是失败与成功的赔率是否对称。2008年他把卖PayPal的最后一笔钱全投进去：不投，公司必死；投了，还有一次活的机会。短期可能血本无归，但不行动的长期代价是确定的归零。"},
+  {id:"c4",name:"硬核工程管理",cites:45,def:"扁平到极致，拒绝PPT汇报，你的名字在上面。",ex:"SpaceX设计图每行要有工程师签名",
+   full:"他痛恨用幻灯片代替思考，要求工程师直接讲数据、讲物理。组织层级压到最薄，决策者必须懂技术细节。责任落到个人——设计图、代码都要署名，做错了找得到人，做对了也是你的功劳。"},
+  {id:"c5",name:"第一性成本",cites:38,def:"不算市场价，只算原材料+加工成本。",ex:"火箭材料成本仅占售价的约4%",
+   full:"供应商报价100万的部件，他会问：这东西由什么材料构成、各值多少钱、加工要多少工时？算下来往往只要几万。\"历史价格\"和\"行业惯例\"都不是成本的依据，物理和加工才是。"},
+  {id:"c6",name:"睡工厂管理",cites:31,def:"在产线上解决问题，不是在会议室里讨论。",ex:"2018年Model 3产能地狱",
+   full:"产能地狱期间他把睡袋搬进弗里蒙特工厂，吃住在产线旁。问题在哪解决就到哪去，亲眼看瓶颈、亲手调节拍，而不是听三层汇报后做\"纸面决策\"。"},
+  {id:"c7",name:"你的名字在上面",cites:28,def:"每份设计图/每行代码写提交者名字。",ex:"SpaceX的设计责任制",
+   full:"署名制把责任和荣誉同时锁定到个人。它逼着人在交付前自我审查，也让真正做事的人被看见——这是\"硬核工程管理\"在执行层的具体抓手。"},
+  {id:"c8",name:"失败即数据",cites:24,def:"爆炸是进度，不是事故。",ex:"猎鹰1号三次爆炸收集的数据",
+   full:"把炸毁的火箭当成一次昂贵但信息密度极高的实验。每次爆炸都精确定位失效环节、改设计、再飞。星舰SN系列同样如此——快速迭代、容忍爆炸，比追求一次完美更快逼近成功。"},
+  {id:"c9",name:"扁平化指令链",cites:20,def:"CEO直接审工程师代码，跳过三层管理层。",ex:"马斯克亲自介入火箭软件评审",
+   full:"信息每经过一层就衰减一次，扁平化是为了让决策者拿到未被过滤的一手事实。他可以越过若干层级直接找到具体负责的工程师，谁掌握信息谁就有话语权。"},
+  {id:"c10",name:"删到不能再删",cites:18,def:"如果最后没加回来一些东西，说明删得不够狠。",ex:"Model 3简化到只留一个中控屏",
+   full:"五步工作法第二步的极端化版本：故意删过头，再把确实必要的加回来。判断标准是\"必须加回至少10%\"——否则说明你删得太保守。仪表盘、按键、线束都因此被大量砍掉。"},
+];
+
+const people = [
+  {id:"p1",name:"格温·肖特维尔",role:"SpaceX总裁",cites:47,contrib:"组织稳定器",status:"in",statusText:"✅ 仍在职",init:"GS",color:"#ff6600",
+   full:"SpaceX真正的二把手与日常运营核心。在马斯克情绪激烈、\"蹦三丈高\"的时候，她在后方稳住组织、对接客户与员工，把愿景翻译成可执行的运营。被视为公司能长期运转的关键人物。"},
+  {id:"p2",name:"汤姆·穆勒",role:"火箭发动机之父",cites:32,contrib:"猎鹰引擎实现者",status:"out",statusText:"❌ 被解雇",init:"TM",color:"#ff6600",
+   full:"梅林（Merlin）发动机的核心设计者，SpaceX早期推进系统的灵魂人物，让\"自研便宜火箭\"从图纸变成真正能点火入轨的引擎。后期离开公司。"},
+  {id:"p3",name:"JB·斯特劳贝尔",role:"电池系统鼻祖",cites:28,contrib:"Model S / Roadster 电池包",status:"out",statusText:"❌ 主动离开",init:"JB",color:"#ff6600",
+   full:"特斯拉早期CTO，电池与动力系统的奠基者，奠定了Roadster到Model S的电池架构。后来主动离开创办电池回收公司Redwood Materials。"},
+  {id:"p4",name:"弗朗茨·冯·霍尔茨豪森",role:"首席设计师",cites:24,contrib:"特斯拉所有车型设计",status:"in",statusText:"✅ 仍在职",init:"FH",color:"#ff6600",
+   full:"特斯拉从Model S到Cybertruck几乎所有车型的设计负责人，把\"删到不能再删\"的极简美学落到外观与内饰，长期与马斯克并肩工作。"},
+  {id:"p5",name:"金巴尔·马斯克",role:"弟弟 + 早期合伙人",cites:18,contrib:"Zip2创业搭档",status:"in",statusText:"✅ 至今亲密",init:"KM",color:"#ff6600",
+   full:"埃隆的弟弟，第一段创业Zip2的合伙人，早期和哥哥一起睡办公室、共用一台电脑写代码。后来成为餐饮创业者，并长期担任特斯拉/SpaceX董事。"},
+  {id:"p6",name:"梅耶·马斯克",role:"母亲",cites:15,contrib:'给了"你可以做任何事"的底层安全感',status:"in",statusText:"✅ 至今支持",init:"MM",color:"#ff6600",
+   full:"模特与营养师，在艰难处境中独自养大三个孩子，给了埃隆\"你可以去做任何事\"的底层心理安全感——这被认为是他敢于做高风险决策的性格根源之一。"},
+  {id:"p7",name:"彼得·蒂尔",role:"Founders Fund",cites:12,contrib:"2008年SpaceX救命钱",status:"in",statusText:"✅ 至今盟友",init:"PT",color:"#ff6600",
+   full:"PayPal时期的同事与对手，后成为投资人。在2008年SpaceX最危急时，其Founders Fund的注资成为公司续命的关键资本之一。"},
+];
+
+const cases = [
+  {id:"k1",name:"猎鹰1号三次爆炸",cites:40,time:"2006–2008",color:"#ff3333",
+   conflict:"钱快烧光，第四次再炸公司就完了",action:"睡在发射场、逐个排查根因、把每次失败当数据",result:"第四次成功入轨，SpaceX起死回生",
+   full:"猎鹰1号前三次发射接连失败，资金濒临耗尽。马斯克没有推诿，而是亲临夸贾林环礁发射场，把每次爆炸都拆成可分析的故障数据。2008年第四次发射成功入轨，成为首枚由私人企业送入轨道的液体燃料火箭。"},
+  {id:"k2",name:"Model 3 产能地狱",cites:38,time:"2018",color:"#ff3333",
+   conflict:"周产卡在2000辆，目标5000辆",action:"睡工厂、开掉只会做PPT的VP、亲自当产线经理",result:"约6周后达成5000辆/周",
+   full:"Model 3量产初期产线问题堆积，过度自动化反成瓶颈。马斯克搬进工厂、拆掉部分自动化、扁平化指挥，亲自走线调节拍，最终在数周内把周产能拉到目标线，公司挺过资金最紧张的阶段。"},
+  {id:"k3",name:"Twitter 收购",cites:30,time:"2022",color:"#ff3333",
+   conflict:"440亿要约 → 反悔 → 被迫完成交易",action:"在极限不确定下推进，事后大规模重构组织",result:"完成收购，更名为X，争议持续",
+   full:"从主动报价到试图退出、再到法律压力下被迫完成，整个过程是风险不对称与极端决策风格的集中体现。收购后大幅裁员、重构产品，并衍生出后续的AI布局。"},
+  {id:"k4",name:"星舰 SN 系列迭代",cites:22,time:"2020–2021",color:"#ff3333",
+   conflict:"SN8–SN15 多次爆炸到成功降落",action:"每次爆炸后立刻改设计，不追求一次完美",result:"SN15成功软着陆，验证迭代式研发",
+   full:"星舰原型机在试飞中接连炸毁，但每次都带回大量飞行数据。\"失败即数据\"在这里被发挥到极致——快速造、快速炸、快速改，最终SN15实现完整起降。"},
+  {id:"k5",name:"2008 双线危机",cites:20,time:"2008",color:"#ff3333",
+   conflict:"SpaceX第三次爆炸 + Tesla Roadster交付危机同时爆发",action:"投入个人最后一笔资金，两线都不放弃",result:"年底SpaceX入轨成功，特斯拉拿到关键融资",
+   full:"金融危机叠加两家公司同时濒临破产，马斯克把卖PayPal所剩的资金几乎全部押上，在SpaceX与特斯拉之间分配最后的现金。年底猎鹰1号成功、特斯拉融资到账，两家公司同时被从悬崖边拉回。"},
+];
+
+const companies = [
+  {id:"m1",name:"SpaceX",cites:58,tagline:"让人类成为多行星物种",color:"#3399ff",
+   full:"2002年成立，以可回收火箭把发射成本压低一个数量级，旗下星链（Starlink）提供全球卫星互联网，星舰（Starship）瞄准月球与火星运输。第一性原理与失败即数据在这里被反复验证。"},
+  {id:"m2",name:"Tesla",cites:50,tagline:"加速世界向可持续能源转变",color:"#3399ff",
+   full:"电动车、储能与太阳能一体化公司。从Roadster到Model 3/Y，把电动车从小众推向主流；五步工作法、睡工厂管理都在这里成型。"},
+  {id:"m3",name:"xAI",cites:14,tagline:"理解宇宙的真实本质",color:"#3399ff",
+   full:"2023年创立的人工智能公司，推出Grok大模型，与X平台深度绑定。是马斯克对AI安全长期关注后亲自下场的产物。"},
+  {id:"m4",name:"Neuralink",cites:11,tagline:"连接人脑与计算机",color:"#3399ff",
+   full:"脑机接口公司，研发可植入芯片，目标先帮助瘫痪等患者恢复能力，长期愿景是实现人机高带宽交互。"},
+  {id:"m5",name:"The Boring Company",cites:9,tagline:"用隧道解决城市拥堵",color:"#3399ff",
+   full:"挖掘公司，试图通过低成本隧道与地下交通系统缓解地面拥堵，从一个略带玩笑的想法演变为实际工程项目。"},
+];
+
+/* edges: source, target, relation */
+const links = [
+  // concept -> case
+  {s:"c1",t:"k1",r:"实现"},{s:"c5",t:"k1",r:"应用"},{s:"c8",t:"k1",r:"体现"},
+  {s:"c2",t:"k2",r:"应用"},{s:"c6",t:"k2",r:"应用"},{s:"c9",t:"k2",r:"应用"},
+  {s:"c3",t:"k3",r:"应用"},
+  {s:"c8",t:"k4",r:"体现"},{s:"c1",t:"k4",r:"应用"},
+  {s:"c3",t:"k5",r:"应用"},
+  // concept -> person
+  {s:"c4",t:"p1",r:"执行"},{s:"c9",t:"p1",r:"配合"},
+  {s:"c1",t:"p2",r:"实现"},{s:"c4",t:"p2",r:"管理"},
+  {s:"c5",t:"p3",r:"应用"},
+  {s:"c10",t:"p4",r:"应用"},
+  {s:"c1",t:"p5",r:"起源"},
+  // person -> company
+  {s:"p1",t:"m1",r:"负责"},{s:"p2",t:"m1",r:"负责"},{s:"p7",t:"m1",r:"投资"},
+  {s:"p3",t:"m2",r:"负责"},{s:"p4",t:"m2",r:"负责"},{s:"p5",t:"m2",r:"参与"},
+  // case -> company
+  {s:"k1",t:"m1",r:"属于"},{s:"k4",t:"m1",r:"属于"},{s:"k5",t:"m1",r:"涉及"},
+  {s:"k2",t:"m2",r:"属于"},{s:"k5",t:"m2",r:"涉及"},
+  {s:"k3",t:"m3",r:"衍生"},
+  // concept -> concept
+  {s:"c1",t:"c2",r:"递进"},{s:"c1",t:"c5",r:"衍生"},{s:"c2",t:"c10",r:"包含"},
+  {s:"c4",t:"c7",r:"包含"},{s:"c4",t:"c9",r:"包含"},{s:"c4",t:"c6",r:"包含"},
+  // person -> person (family)
+  {s:"p5",t:"p6",r:"家人"},
+];
+
+/* ============ RENDER CARDS ============ */
+function avatarSVG(init,color){
+  return `<svg class="avatar" viewBox="0 0 52 52">
+    <circle cx="26" cy="26" r="24" fill="#0d0d0d" stroke="${color}" stroke-width="1.5"/>
+    <circle cx="26" cy="20" r="8" fill="none" stroke="${color}" stroke-width="1.5" opacity=".7"/>
+    <path d="M12 46 Q26 32 40 46" fill="none" stroke="${color}" stroke-width="1.5" opacity=".7"/>
+    <text x="26" y="30" text-anchor="middle" font-family="monospace" font-size="11" fill="${color}" opacity=".0">${init}</text>
+  </svg>`;
+}
+
+const cg = document.getElementById('conceptsGrid');
+concepts.forEach((c,i)=>{
+  const el=document.createElement('div'); el.className='card'; el.dataset.id=c.id;
+  el.dataset.search=(c.name+c.def+c.ex).toLowerCase();
+  el.innerHTML=`<div class="rank">#${String(i+1).padStart(2,'0')}</div>
+    <h3>${c.name}</h3>
+    <div class="cites">被引用 ${c.cites} 次</div>
+    <div class="def">${c.def}</div>
+    <div class="ex">${c.ex}</div>
+    <div class="more">${c.full}</div>
+    <div class="toggle">[ + 展开全文 ]</div>`;
+  bindCard(el); cg.appendChild(el);
+});
+
+const pg=document.getElementById('peopleGrid');
+people.forEach(p=>{
+  const el=document.createElement('div'); el.className='card'; el.dataset.id=p.id;
+  el.dataset.search=(p.name+p.role+p.contrib).toLowerCase();
+  el.innerHTML=`<div class="person-top">${avatarSVG(p.init,p.color)}
+      <div><h3 style="padding-right:0">${p.name}</h3>
+      <div class="person-meta">${p.role} · 被引用 ${p.cites} 次</div></div></div>
+    <div class="def" style="margin-top:12px">${p.contrib}</div>
+    <div class="status ${p.status}">${p.statusText}</div>
+    <div class="more">${p.full}</div>
+    <div class="toggle">[ + 展开全文 ]</div>`;
+  bindCard(el); pg.appendChild(el);
+});
+
+const kg=document.getElementById('casesGrid');
+cases.forEach(c=>{
+  const el=document.createElement('div'); el.className='card'; el.dataset.id=c.id;
+  el.dataset.search=(c.name+c.conflict+c.action+c.result).toLowerCase();
+  el.innerHTML=`<div class="case-time">${c.time}</div>
+    <h3 style="margin-top:4px">${c.name}</h3>
+    <div class="cites">被引用 ${c.cites} 次</div>
+    <div class="case-row"><span class="k">核心冲突</span>${c.conflict}</div>
+    <div class="case-row"><span class="k">马斯克怎么做</span>${c.action}</div>
+    <div class="case-row"><span class="k">结果</span>${c.result}</div>
+    <div class="more">${c.full}</div>
+    <div class="toggle">[ + 展开全文 ]</div>`;
+  bindCard(el); kg.appendChild(el);
+});
+
+const mg=document.getElementById('companiesGrid');
+companies.forEach(m=>{
+  const el=document.createElement('div'); el.className='card company'; el.dataset.id=m.id;
+  el.dataset.search=(m.name+m.tagline).toLowerCase();
+  el.innerHTML=`<h3>${m.name}</h3>
+    <div class="cites">被引用 ${m.cites} 次</div>
+    <div class="def">${m.tagline}</div>
+    <div class="more">${m.full}</div>
+    <div class="toggle">[ + 展开全文 ]</div>`;
+  bindCard(el); mg.appendChild(el);
+});
+
+function bindCard(el){
+  el.addEventListener('click',()=>{
+    el.classList.toggle('open');
+    const t=el.querySelector('.toggle');
+    t.textContent = el.classList.contains('open') ? '[ − 收起 ]' : '[ + 展开全文 ]';
+  });
+}
+
+/* ============ SEARCH (list mode) ============ */
+const search=document.getElementById('search');
+const empty=document.getElementById('empty');
+search.addEventListener('input',()=>{
+  const q=search.value.trim().toLowerCase();
+  if(graphOn){ graphSearch(q); return; }
+  let visible=0;
+  document.querySelectorAll('#listView .card').forEach(c=>{
+    const hit=!q||c.dataset.search.includes(q);
+    c.style.display=hit?'':'none';
+    if(hit)visible++;
+  });
+  document.querySelectorAll('#listView section').forEach(s=>{
+    const any=[...s.querySelectorAll('.card')].some(c=>c.style.display!=='none');
+    s.style.display=any?'':'none';
+  });
+  empty.style.display=visible?'none':'block';
+});
+
+/* ============ VIEW SWITCH ============ */
+let graphOn=false, graphInit=false;
+const listView=document.getElementById('listView');
+const graphView=document.getElementById('graphView');
+const btnList=document.getElementById('btnList');
+const btnGraph=document.getElementById('btnGraph');
+
+function setMode(graph){
+  graphOn=graph;
+  listView.style.display=graph?'none':'';
+  graphView.style.display=graph?'':'none';
+  btnGraph.classList.toggle('on',graph);
+  btnList.classList.toggle('on',!graph);
+  search.placeholder = graph ? "高亮匹配节点…" : "搜索 概念/人物/案例…";
+  if(graph && !graphInit){ buildGraph(); graphInit=true; }
+  if(graph) setTimeout(()=>{ if(simulation) simulation.alpha(0.3).restart(); },50);
+}
+btnList.onclick=()=>setMode(false);
+btnGraph.onclick=()=>setMode(true);
+
+document.getElementById('navlinks').addEventListener('click',e=>{
+  const a=e.target.closest('a'); if(!a)return;
+  if(a.dataset.mode==='graph'){ setMode(true); document.getElementById('graphSec').scrollIntoView(); return; }
+  if(a.dataset.target){
+    setMode(false);
+    setTimeout(()=>document.getElementById(a.dataset.target).scrollIntoView(),20);
+  }
+});
+
+/* ============ GRAPH (d3) ============ */
+let simulation=null;
+function nodeData(id){
+  return concepts.find(x=>x.id===id)||people.find(x=>x.id===id)
+    ||cases.find(x=>x.id===id)||companies.find(x=>x.id===id);
+}
+const TYPE={c:{label:"概念",color:"#00ff41"},p:{label:"人物",color:"#ff6600"},
+            k:{label:"案例",color:"#ff3333"},m:{label:"公司",color:"#3399ff"}};
+
+function buildGraph(){
+  const svg=d3.select("#graph");
+  const shell=document.querySelector('.graph-shell');
+  let W=shell.clientWidth, H=shell.clientHeight;
+  svg.attr("viewBox",`0 0 ${W} ${H}`);
+
+  // assemble nodes
+  const all=[...concepts,...people,...cases,...companies].map(d=>({
+    id:d.id, name:d.name, cites:d.cites, type:d.id[0],
+    color:TYPE[d.id[0]].color, r:5+4.6*Math.log(d.cites)
+  }));
+  const idmap=Object.fromEntries(all.map(n=>[n.id,n]));
+  const ls=links.map(l=>({source:idmap[l.s],target:idmap[l.t],r:l.r}));
+
+  // adjacency for hover highlight
+  const adj={}; all.forEach(n=>adj[n.id]=new Set());
+  ls.forEach(l=>{adj[l.source.id].add(l.target.id);adj[l.target.id].add(l.source.id);});
+
+  // glow filters per color
+  const defs=svg.append("defs");
+  Object.values(TYPE).forEach((t,i)=>{
+    const f=defs.append("filter").attr("id","glow"+i).attr("x","-60%").attr("y","-60%").attr("width","220%").attr("height","220%");
+    f.append("feGaussianBlur").attr("stdDeviation","3.5").attr("result","b");
+    const m=f.append("feMerge"); m.append("feMergeNode").attr("in","b"); m.append("feMergeNode").attr("in","SourceGraphic");
+  });
+  const glowIdx={c:0,p:1,k:2,m:3};
+
+  const zoomG=svg.append("g");
+  svg.call(d3.zoom().scaleExtent([0.4,3]).on("zoom",ev=>zoomG.attr("transform",ev.transform)));
+
+  const link=zoomG.append("g").selectAll("line").data(ls).join("line")
+    .attr("stroke","#00ff41").attr("stroke-opacity",0.28).attr("stroke-width",1);
+
+  const node=zoomG.append("g").selectAll("g").data(all).join("g").style("cursor","pointer")
+    .call(d3.drag()
+      .on("start",(ev,d)=>{if(!ev.active)simulation.alphaTarget(0.3).restart();d.fx=d.x;d.fy=d.y;})
+      .on("drag",(ev,d)=>{d.fx=ev.x;d.fy=ev.y;})
+      .on("end",(ev,d)=>{if(!ev.active)simulation.alphaTarget(0);d.fx=null;d.fy=null;}));
+
+  node.append("circle").attr("r",d=>d.r).attr("fill",d=>d.color)
+    .attr("fill-opacity",0.85).attr("stroke",d=>d.color).attr("stroke-width",1.5)
+    .attr("filter",d=>`url(#glow${glowIdx[d.type]})`);
+  node.append("text").attr("class","node-label").attr("dy",d=>d.r+11)
+    .attr("text-anchor","middle").text(d=>d.name);
+
+  function highlight(d){
+    const keep=adj[d.id]; keep.add(d.id);
+    node.style("opacity",n=>keep.has(n.id)?1:0.12);
+    link.attr("stroke-opacity",l=>(l.source.id===d.id||l.target.id===d.id)?0.85:0.04)
+        .attr("stroke-width",l=>(l.source.id===d.id||l.target.id===d.id)?2:1);
+  }
+  function reset(){ node.style("opacity",1); link.attr("stroke-opacity",0.28).attr("stroke-width",1); }
+
+  node.on("mouseenter",(ev,d)=>highlight(d))
+      .on("mouseleave",()=>{ if(!detailLock) reset(); })
+      .on("click",(ev,d)=>{ detailLock=true; highlight(d); showDetail(d,adj); })
+      .on("dblclick",(ev,d)=>jumpToCard(d.id));
+
+  simulation=d3.forceSimulation(all)
+    .force("link",d3.forceLink(ls).id(d=>d.id).distance(l=>90).strength(0.35))
+    .force("charge",d3.forceManyBody().strength(-260))
+    .force("center",d3.forceCenter(W/2,H/2))
+    .force("collide",d3.forceCollide().radius(d=>d.r+16))
+    .on("tick",()=>{
+      link.attr("x1",l=>l.source.x).attr("y1",l=>l.source.y)
+          .attr("x2",l=>l.target.x).attr("y2",l=>l.target.y);
+      node.attr("transform",d=>`translate(${d.x},${d.y})`);
+    });
+
+  // resize
+  window.addEventListener('resize',()=>{
+    if(!graphOn)return;
+    W=shell.clientWidth; H=shell.clientHeight;
+    svg.attr("viewBox",`0 0 ${W} ${H}`);
+    simulation.force("center",d3.forceCenter(W/2,H/2)).alpha(0.2).restart();
+  });
+
+  // expose for search
+  window._gnode=node; window._glink=link; window._greset=reset;
+}
+
+let detailLock=false;
+const detail=document.getElementById('detail');
+function showDetail(d,adj){
+  const data=nodeData(d.id);
+  const t=TYPE[d.type];
+  const neighbors=[...adj[d.id]].filter(x=>x!==d.id).map(x=>{
+    const n=nodeData(x); const rel=links.find(l=>(l.s===d.id&&l.t===x)||(l.t===d.id&&l.s===x));
+    return `<b>${n.name}</b> <span style="color:#555">(${rel?rel.r:''})</span>`;
+  }).join(" · ");
+  let body="";
+  if(d.type==='c') body=`<p>${data.def}</p><p>${data.full}</p>`;
+  else if(d.type==='p') body=`<p>${data.role} · ${data.statusText}</p><p>${data.full}</p>`;
+  else if(d.type==='k') body=`<p style="color:#00ff41;font-family:monospace">${data.time}</p><p>${data.full}</p>`;
+  else body=`<p style="color:#3399ff">${data.tagline}</p><p>${data.full}</p>`;
+  detail.innerHTML=`<div class="x" id="dclose">[关闭]</div>
+    <div class="dtype" style="color:${t.color}">${t.label}</div>
+    <h3>${data.name}</h3>
+    <div class="dcites">被引用 ${data.cites} 次</div>
+    ${body}
+    <div class="conn"><span style="color:${t.color}">▸ 相连节点</span><br>${neighbors||'—'}</div>
+    <div class="jump" id="djump">⤵ 跳转到对应卡片</div>`;
+  detail.classList.add('show');
+  document.getElementById('dclose').onclick=()=>{detail.classList.remove('show');detailLock=false;window._greset&&window._greset();};
+  document.getElementById('djump').onclick=()=>jumpToCard(d.id);
+}
+
+function jumpToCard(id){
+  setMode(false);
+  search.value=''; search.dispatchEvent(new Event('input'));
+  setTimeout(()=>{
+    const card=document.querySelector(`#listView .card[data-id="${id}"]`);
+    if(card){
+      card.scrollIntoView({block:'center'});
+      if(!card.classList.contains('open')) card.click();
+      card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+    }
+  },60);
+}
+
+function graphSearch(q){
+  if(!window._gnode)return;
+  if(!q){ window._greset(); detailLock=false; return; }
+  window._gnode.style("opacity",d=>d.name.toLowerCase().includes(q)?1:0.12);
+  window._gnode.select("circle").attr("stroke-width",d=>d.name.toLowerCase().includes(q)?3:1.5);
+}
+</script>
+</body>
+</html>
