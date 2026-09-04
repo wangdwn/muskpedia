@@ -120,7 +120,7 @@
     max-height:0; overflow:hidden; transition:max-height .35s ease; color:#bdbdbd;
     font-size:.88rem; border-top:1px dashed var(--card-edge); margin-top:0; padding-top:0;
   }
-  .card.open .more{max-height:2200px; margin-top:14px; padding-top:12px}
+  .card.open .more{max-height:none; overflow:visible; margin-top:14px; padding-top:12px}
   .quote{
     margin:12px 0 8px; padding:10px 12px; border-left:2px solid var(--green);
     background:rgba(0,255,65,.04); color:#d5d5d5; font-size:.86rem; font-style:italic; line-height:1.55;
@@ -696,8 +696,8 @@ const btnGraph=document.getElementById('btnGraph');
 
 function setMode(graph){
   graphOn=graph;
-  listView.style.display=graph?'none':'';
-  graphView.style.display=graph?'':'none';
+  listView.style.display=graph?'none':'block';
+  graphView.style.display=graph?'block':'none';
   btnGraph.classList.toggle('on',graph);
   btnList.classList.toggle('on',!graph);
   search.placeholder = graph ? "高亮匹配节点…" : "搜索 概念/人物/案例…";
