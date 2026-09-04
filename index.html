@@ -111,16 +111,29 @@
   .card .rank{position:absolute; top:12px; right:14px; font-family:var(--mono);
     font-size:.7rem; color:#333}
   .card h3{font-family:var(--mono); font-size:1.05rem; color:#fff; padding-right:34px}
-  .cites{display:inline-block; font-family:var(--mono); font-size:.68rem; color:var(--green);
-    border:1px solid var(--green-dim); padding:2px 7px; margin:9px 0; letter-spacing:.5px}
+  .cites,.srcpill{display:inline-block; font-family:var(--mono); font-size:.68rem; color:var(--green);
+    border:1px solid var(--green-dim); padding:2px 7px; margin:9px 6px 9px 0; letter-spacing:.5px}
   .card .def{color:var(--text); font-size:.92rem}
   .card .ex{color:var(--muted); font-size:.82rem; margin-top:8px; font-family:var(--mono)}
   .card .ex::before{content:"▸ 事件 "; color:var(--green)}
   .card .more{
-    max-height:0; overflow:hidden; transition:max-height .3s ease; color:#bdbdbd;
+    max-height:0; overflow:hidden; transition:max-height .35s ease; color:#bdbdbd;
     font-size:.88rem; border-top:1px dashed var(--card-edge); margin-top:0; padding-top:0;
   }
-  .card.open .more{max-height:420px; margin-top:14px; padding-top:12px}
+  .card.open .more{max-height:2200px; margin-top:14px; padding-top:12px}
+  .quote{
+    margin:12px 0 8px; padding:10px 12px; border-left:2px solid var(--green);
+    background:rgba(0,255,65,.04); color:#d5d5d5; font-size:.86rem; font-style:italic; line-height:1.55;
+  }
+  .quote .qsrc{display:block; margin-top:8px; font-style:normal; font-family:var(--mono);
+    font-size:.66rem; color:var(--muted); line-height:1.5}
+  .quote a,.more a,.src-list a{color:var(--green); text-decoration:underline; text-underline-offset:2px}
+  .note{font-family:var(--mono); font-size:.72rem; color:#666; margin-top:10px; line-height:1.55}
+  .hero .updated{margin-top:16px; font-family:var(--mono); font-size:.72rem; color:var(--muted); letter-spacing:1px}
+  .hero .updated b{color:var(--green); font-weight:600}
+  .src-list{list-style:none; display:grid; gap:10px; margin-top:8px}
+  .src-list li{background:var(--card); border:1px solid var(--card-edge); padding:12px 14px; font-size:.86rem}
+  .src-list .smeta{display:block; font-family:var(--mono); font-size:.68rem; color:var(--muted); margin-top:4px}
   .card .toggle{font-family:var(--mono); font-size:.7rem; color:var(--green-dim); margin-top:12px}
   .card.open .toggle{color:var(--green)}
   .card.flash{animation:flash .9s ease}
@@ -141,7 +154,7 @@
   /* company-specific */
   .card.company{border-left-color:var(--blue)}
   .card.company:hover{border-left-color:var(--blue); box-shadow:0 6px 24px rgba(0,0,0,.6), -3px 0 14px rgba(51,153,255,.18)}
-  .card.company .cites{color:var(--blue); border-color:#1d4f80}
+  .card.company .cites,.card.company .srcpill{color:var(--blue); border-color:#1d4f80}
 
   .empty{color:var(--muted); font-family:var(--mono); text-align:center; padding:40px; display:none}
 
@@ -249,6 +262,7 @@
     <a data-target="people">关键人物</a>
     <a data-target="cases">经典案例</a>
     <a data-target="companies">公司版图</a>
+    <a data-target="sources">来源</a>
     <a data-mode="graph">🕸️ 知识图谱</a>
   </div>
   <div class="search-wrap">
@@ -262,6 +276,7 @@
     <div class="eyebrow">FIRST PRINCIPLES // 物理层 → 工程层</div>
     <h1>从物理层 <span class="arrow">→</span> 到工程层</h1>
     <div class="sub">第一性原理 <b>×</b> 五步工作法 <b>×</b> 风险不对称决策</div>
+    <div class="updated">内容修订 · 上次更新 <b id="lastUpdated">2026-09-04</b> · 引语均标注出处，综述不加引号</div>
   </div>
 </header>
 
@@ -274,7 +289,7 @@
   <!-- LIST VIEW -->
   <div id="listView">
     <section id="concepts">
-      <div class="sec-head"><h2>核心思维</h2><span class="tag">按引用频次排列</span></div>
+      <div class="sec-head"><h2>核心概念</h2><span class="tag">公开访谈与工程实践 · 非虚构引语计数</span></div>
       <div class="grid cols" id="conceptsGrid"></div>
     </section>
 
@@ -289,8 +304,16 @@
     </section>
 
     <section id="companies">
-      <div class="sec-head"><h2>公司版图</h2><span class="tag">五家公司 · 一个使命</span></div>
+      <div class="sec-head"><h2>公司版图</h2><span class="tag">公开使命与可核验事实</span></div>
       <div class="grid cols" id="companiesGrid"></div>
+    </section>
+
+    <section id="sources">
+      <div class="sec-head"><h2>来源与修订说明</h2><span class="tag">公开材料 · 可核对</span></div>
+      <p class="note" style="margin-bottom:16px;color:var(--muted);font-family:var(--sans);font-size:.88rem;line-height:1.65">
+        卡片里带引号的句子来自下方公开访谈、演讲或被多家媒体刊载的内部备忘录；不带引号的是本站摘要，不是原话。旧版「被引用 N 次」没有可核验统计口径，已撤下。人物去留以公开职务变更为准。
+      </p>
+      <ul class="src-list" id="sourcesList"></ul>
     </section>
 
     <div class="empty" id="empty">// 无匹配结果 —— 换个关键词试试</div>
@@ -316,8 +339,8 @@
 </main>
 
 <footer>
-  一个独立知识库 · 数据来源：艾萨克森《马斯克传》+ 公开访谈<br>
-  Made with <span class="hl">Musk's First Principles</span>
+  一个独立知识库 · 引语来自公开访谈、TED 演讲、WIRED、艾萨克森《Elon Musk》(2023) 及被刊载的内部备忘录<br>
+  上次更新 <span class="hl" id="footerUpdated">2026-09-04</span> · Made with <span class="hl">First Principles</span>
 </footer>
 
 <button id="chatFab">🤖<span class="fabtext"> 问马斯克</span></button>
@@ -346,75 +369,179 @@
 
 <script>
 /* ============ DATA ============ */
+const LAST_UPDATED = "2026-09-04";
+
+const bibliography = [
+  {title:"Elon Musk's Mission to Mars",meta:"Chris Anderson 访谈 · WIRED · 2012-10-21",url:"https://www.wired.com/2012/10/ff-elon-musk-qa/",note:"第一性原理与火箭原材料成本约占市售价 2% 的原话出处。"},
+  {title:"The mind behind Tesla, SpaceX, SolarCity…",meta:"TED2013 · 2013-02",url:"https://www.ted.com/talks/elon_musk_the_mind_behind_tesla_spacex_solarcity",note:"第一性原理定义；推进剂约占火箭成本 0.3%、可复用或可带来约百倍成本改善。"},
+  {title:"Elon Musk",meta:"Walter Isaacson · Simon & Schuster · 2023",url:"https://www.simonandschuster.com/books/Elon-Musk/Walter-Isaacson/9781982181284",note:"五步「算法」、删回 10%、自动化放最后；2008 年双线危机与工厂现场管理的传记记述。"},
+  {title:"I'm back to sleeping at factory. Car biz is hell.",meta:"Elon Musk · X/Twitter · 2018-04-02",url:"https://www.cnbc.com/2018/04/03/elon-musk-tweets-that-hes-sleeping-at-the-tesla-factory.html",note:"产能地狱期间睡工厂的公开原话；同期 Model 3 周产约 2020 辆。"},
+  {title:"Tesla hits Model 3 manufacturing milestone",meta:"Reuters · 2018-07-01",url:"https://www.reuters.com/article/business/exclusive-tesla-hits-model-3-manufacturing-milestone-hours-after-deadline-fa-idUSKBN1JR1WX/",note:"2018 年 6 月末一周接近/达到 5000 辆 Model 3 目标。"},
+  {title:"Falcon 1 Flight 3 failure analysis",meta:"SpaceX / Elon Musk 公开说明 · 2008-08",url:"https://spaceref.com/uncategorized/spacex-determines-cause-of-falcon-1-launch-failure/",note:"第三次失败：Merlin 1C 关机后残余推力导致一二级再接触。"},
+  {title:"Falcon 1 Flight 1 corrosion finding",meta:"DARPA / Space.com · 2006",url:"https://www.space.com/2643-falcon-1-failure-traced-busted-nut.html",note:"首次发射：铝制管接螺母晶间腐蚀导致燃料泄漏起火。"},
+  {title:"Tesla internal email: Progress, Precision and Profit",meta:"Electrek 刊载全文 · 2018-04-17",url:"https://electrek.co/2018/04/17/tesla-model-3-production-goal-6000-units-per-week/",note:"最短路径沟通；供应商报价要有第一性原理拆解。"},
+  {title:"Twitter 2.0 hardcore memo",meta:"2022-11-16 内部备忘录 · The Verge 刊载全文",url:"https://www.theverge.com/2022/11/16/23462026/elon-musk-twitter-email-hardcore-or-severance",note:"“extremely hardcore”：长时间、高强度。"},
+  {title:"Neuralink first human implant",meta:"Reuters · 2024-01-29",url:"https://www.reuters.com/technology/neuralink-implants-brain-chip-first-human-musk-says-2024-01-29/",note:"马斯克宣布首位人体植入受试者手术完成并恢复良好。"},
+  {title:"Tom Mueller retirement",meta:"本人声明 · 2020-11-30",url:"https://en.wikipedia.org/wiki/Tom_Mueller",note:"SpaceX 1 号员工、Merlin 主导者；退休而非解雇，后创办 Impulse Space。"}
+];
+
 const concepts = [
-  {id:"c1",name:"第一性原理",cites:87,def:"回到物理学的真理层重新推理，不用类比思维。",ex:"猎鹰1号火箭成本从5000万做到200万",
-   full:"类比思维是\"别人这么做所以我也这么做\"；第一性原理是把事物拆到不能再拆的物理事实，再从那里往上重建。马斯克算火箭：铝、钛、铜、碳纤维的原材料成本只占售价的约2%，于是结论是火箭应该能便宜两个数量级——这成了SpaceX自研、可回收的底层逻辑。"},
-  {id:"c2",name:"五步工作法",cites:63,def:"质疑→删除→优化→加速→自动化，顺序不可逆。",ex:"Model 3产能从2000到5000辆/周",
-   full:"① 质疑每条需求（并把提需求的人具名）；② 删除不必要的零件/流程，删狠一点；③ 优化剩下的；④ 加速节拍；⑤ 最后才自动化。最常见的错误是跳过前两步直接自动化——把本不该存在的步骤自动化，等于把愚蠢工业化。"},
-  {id:"c3",name:"风险不对称决策",cites:52,def:"不做这件事的长期风险 > 做这件事的短期损失。",ex:"2008年把所有钱押在SpaceX第四次发射",
-   full:"决策看的不是\"会不会失败\"，而是失败与成功的赔率是否对称。2008年他把卖PayPal的最后一笔钱全投进去：不投，公司必死；投了，还有一次活的机会。短期可能血本无归，但不行动的长期代价是确定的归零。"},
-  {id:"c4",name:"硬核工程管理",cites:45,def:"扁平到极致，拒绝PPT汇报，你的名字在上面。",ex:"SpaceX设计图每行要有工程师签名",
-   full:"他痛恨用幻灯片代替思考，要求工程师直接讲数据、讲物理。组织层级压到最薄，决策者必须懂技术细节。责任落到个人——设计图、代码都要署名，做错了找得到人，做对了也是你的功劳。"},
-  {id:"c5",name:"第一性成本",cites:38,def:"不算市场价，只算原材料+加工成本。",ex:"火箭材料成本仅占售价的约4%",
-   full:"供应商报价100万的部件，他会问：这东西由什么材料构成、各值多少钱、加工要多少工时？算下来往往只要几万。\"历史价格\"和\"行业惯例\"都不是成本的依据，物理和加工才是。"},
-  {id:"c6",name:"睡工厂管理",cites:31,def:"在产线上解决问题，不是在会议室里讨论。",ex:"2018年Model 3产能地狱",
-   full:"产能地狱期间他把睡袋搬进弗里蒙特工厂，吃住在产线旁。问题在哪解决就到哪去，亲眼看瓶颈、亲手调节拍，而不是听三层汇报后做\"纸面决策\"。"},
-  {id:"c7",name:"你的名字在上面",cites:28,def:"每份设计图/每行代码写提交者名字。",ex:"SpaceX的设计责任制",
-   full:"署名制把责任和荣誉同时锁定到个人。它逼着人在交付前自我审查，也让真正做事的人被看见——这是\"硬核工程管理\"在执行层的具体抓手。"},
-  {id:"c8",name:"失败即数据",cites:24,def:"爆炸是进度，不是事故。",ex:"猎鹰1号三次爆炸收集的数据",
-   full:"把炸毁的火箭当成一次昂贵但信息密度极高的实验。每次爆炸都精确定位失效环节、改设计、再飞。星舰SN系列同样如此——快速迭代、容忍爆炸，比追求一次完美更快逼近成功。"},
-  {id:"c9",name:"扁平化指令链",cites:20,def:"CEO直接审工程师代码，跳过三层管理层。",ex:"马斯克亲自介入火箭软件评审",
-   full:"信息每经过一层就衰减一次，扁平化是为了让决策者拿到未被过滤的一手事实。他可以越过若干层级直接找到具体负责的工程师，谁掌握信息谁就有话语权。"},
-  {id:"c10",name:"删到不能再删",cites:18,def:"如果最后没加回来一些东西，说明删得不够狠。",ex:"Model 3简化到只留一个中控屏",
-   full:"五步工作法第二步的极端化版本：故意删过头，再把确实必要的加回来。判断标准是\"必须加回至少10%\"——否则说明你删得太保守。仪表盘、按键、线束都因此被大量砍掉。"},
+  {id:"c1",name:"第一性原理",weight:90,src:"WIRED 2012 · TED 2013",
+   def:"从物理事实往上推理，而不是靠类比复制别人怎么做。",
+   ex:"火箭原材料成本约占当时市售价约 2%（WIRED 2012）",
+   quotes:[
+     {text:"I tend to approach things from a physics framework. And physics teaches you to reason from first principles rather than by analogy. So I said, OK, let's look at the first principles. What is a rocket made of? Aerospace-grade aluminum alloys, plus some titanium, copper, and carbon fiber. And then I asked, what is the value of those materials on the commodity market? It turned out that the materials cost of a rocket was around 2 percent of the typical price—which is a crazy ratio for a large mechanical product.",
+      src:"Elon Musk，Chris Anderson 访谈，WIRED，2012-10-21",
+      url:"https://www.wired.com/2012/10/ff-elon-musk-qa/"},
+     {text:"Generally I think there are — what I mean by that is, boil things down to their fundamental truths and reason up from there, as opposed to reasoning by analogy. Through most of our life, we get through life by reasoning by analogy, which essentially means copying what other people do with slight variations.",
+      src:"Elon Musk，TED2013，2013-02",
+      url:"https://www.ted.com/talks/elon_musk_the_mind_behind_tesla_spacex_solarcity"}
+   ],
+   full:"旧版把「猎鹰 1 号从 5000 万做到 200 万」写成第一性原理的例子，公开材料里找不到这个数字，已删除。可核验的是：2012 年马斯克在 WIRED 说，按大宗商品价算，火箭材料成本大约只占当时市售价的 2%；2013 年 TED 上他把第一性原理说成「拆到基本事实再往上推理」，并对照日常的类比思维（略改别人做法）。SpaceX 后来走自研与可回收，是这一推理的工程延伸，不是把市价直接除到两百万。"},
+  {id:"c2",name:"五步工作法",weight:84,src:"Isaacson 2023 · 公开确认",
+   def:"质疑需求 → 删除 → 简化优化 → 加速节拍 → 最后才自动化。顺序不能反。",
+   ex:"Model 3 产线曾先上自动化，再被迫拆掉部分设备",
+   quotes:[
+     {text:"Question every requirement. Each should come with the name of the person who made it. You should never accept that a requirement came from a department, such as from “the legal department” or “the safety department.” You need to know the name of the real person who made that requirement. Then you should question it, no matter how smart that person is. … Automate. That comes last. The big mistake in Nevada and at Fremont was that I began by trying to automate every step.",
+      src:"Walter Isaacson《Elon Musk》(2023) 所记「算法」全文步骤；马斯克此后在公开场合确认过这套顺序",
+      url:"https://www.simonandschuster.com/books/Elon-Musk/Walter-Isaacson/9781982181284"}
+   ],
+   full:"传记把这套清单称为 the algorithm。五步是：1）质疑每条需求并找到具名提出人，聪明的人提的需求更要问；2）能删的零件/流程就删；3）再简化优化——常见错误是优化一个本不该存在的东西；4）再加速节拍；5）最后才自动化。弗里蒙特与内华达的教训是：跳过前几步直接自动化，等于把错误工序固化。卡片展开后是传记记载的步骤，不是本站编的口诀。"},
+  {id:"c3",name:"风险不对称决策",weight:72,src:"TED 2013 · 2008 公开时间线",
+   def:"看的是失败与不行动的赔率，不是「会不会失败」本身。",
+   ex:"2008 年 SpaceX 与 Tesla 同时濒临耗尽现金",
+   quotes:[
+     {text:"It was a close call. Things almost didn't work out. We came very close to failure, but we managed to get through that point in 2008.",
+      src:"Elon Musk，TED2013",
+      url:"https://www.ted.com/talks/elon_musk_the_mind_behind_tesla_spacex_solarcity"}
+   ],
+   full:"2008 年猎鹰 1 号连续失败、特斯拉 Roadster 交付困难，又叠上金融危机。公开传记与当时报道写的是：他把出售 PayPal 后剩余的个人资金几乎全部押进两家公司；不追加则两家都更可能立刻停摆。第四次猎鹰 1 号于 2008-09-28 入轨，随后 NASA COTS 合同与特斯拉融资到账。这是赔率不对称，不是「赌一定会赢」的鸡汤。"},
+  {id:"c4",name:"硬核工程管理",weight:68,src:"2022 备忘录 · Isaacson 2023",
+   def:"结果导向、高强度、少用幻灯片代替物理与数据。",
+   ex:"2022 年接管 Twitter 后的 hardcore 备忘录",
+   quotes:[
+     {text:"Going forward, to build a breakthrough Twitter 2.0 and succeed in an increasingly competitive world, we will need to be extremely hardcore. This will mean working long hours at high intensity. Only exceptional performance will constitute a passing grade.",
+      src:"Elon Musk 致 Twitter 员工备忘录，The Verge 刊载全文，2022-11-16",
+      url:"https://www.theverge.com/2022/11/16/23462026/elon-musk-twitter-email-hardcore-or-severance"}
+   ],
+   full:"「硬核」不是本站发明的管理学标签。2022 年 11 月这份被刊载的备忘录把 hardcore 定义成长时间、高强度，并要求达不到的人离开。传记另记述 SpaceX/Tesla 设计评审强调物理与数据、反对用 PPT 空转。工作强度本身有大量争议，本站只保留可核对的原话与公开结果，不把争议写成美德。"},
+  {id:"c5",name:"第一性成本",weight:64,src:"WIRED 2012 · TED 2013",
+   def:"先问材料与物理，再问行业报价。",
+   ex:"材料约占市售价 2%；推进剂约占火箭成本 0.3%",
+   quotes:[
+     {text:"The cost of the propellant is about .3 percent of the cost of the rocket. So it's possible to achieve, let's say, roughly 100-fold improvement in the cost of spaceflight if you can effectively reuse the rocket.",
+      src:"Elon Musk，TED2013",
+      url:"https://www.ted.com/talks/elon_musk_the_mind_behind_tesla_spacex_solarcity"},
+     {text:"If you are the manager responsible, please make sure you have a detailed, first principles understanding of the supplier quote, including every line item of parts & labor, before we meet.",
+      src:"Elon Musk 致 Tesla 员工邮件，Electrek 刊载全文，2018-04-17",
+      url:"https://electrek.co/2018/04/17/tesla-model-3-production-goal-6000-units-per-week/"}
+   ],
+   full:"旧版「材料成本约占售价 4%」与 WIRED 原话（约 2%）不一致，已改正。同一套推理在 TED 上延伸到可回收：推进剂只占火箭成本约千分之三，若能像飞机那样复用，空间运输成本理论上可差约两个数量级。2018 年特斯拉内部邮件又把同一方法用在供应商报价：开会前要按第一性原理拆到零件与工时。这是数量级论证和工作方法，不是某一年的价目表。"},
+  {id:"c6",name:"睡工厂管理",weight:58,src:"马斯克推文 2018-04-02",
+   def:"瓶颈在产线就到产线，不在会议室里听三层过滤后的汇报。",
+   ex:"2018 年弗里蒙特 Model 3 产能地狱",
+   quotes:[
+     {text:"I'm back to sleeping at factory. Car biz is hell.",
+      src:"Elon Musk，X/Twitter，2018-04-02（CNBC 等报道）",
+      url:"https://www.cnbc.com/2018/04/03/elon-musk-tweets-that-hes-sleeping-at-the-tesla-factory.html"}
+   ],
+   full:"2018 年 4 月 2 日他公开说回到工厂睡。同期特斯拉披露前七天 Model 3 产量约 2020 辆，目标是 5000 辆/周。Reuters 报道 6 月最后一周接近该目标，马斯克在 7 月 1 日员工邮件里宣布达成。旧版「约 6 周后达标」与公开时间线不符（约一个季度），已改。睡工厂是现场管理，不是产能数字本身的魔法。"},
+  {id:"c7",name:"你的名字在上面",weight:48,src:"Isaacson 2023 记述",
+   def:"需求、设计、变更都要落到具名的人，而不是「某部门」。",
+   ex:"五步法第一步：每条需求带提出者姓名",
+   quotes:[
+     {text:"You should never accept that a requirement came from a department, such as from “the legal department” or “the safety department.” You need to know the name of the real person who made that requirement.",
+      src:"Walter Isaacson《Elon Musk》(2023) 所记算法第 1 步",
+      url:"https://www.simonandschuster.com/books/Elon-Musk/Walter-Isaacson/9781982181284"}
+   ],
+   full:"署名制在传记里是算法的执行面：部门不能当盾牌。旧版把它写成「每行代码必须签名」的绝对规则，公开材料支持的是设计/需求责任到人，不是一条可审计的全公司源代码政策，故改成与原话一致的表述。"},
+  {id:"c8",name:"失败即数据",weight:55,src:"Falcon 1 故障说明 · 星舰 SN 试飞",
+   def:"把失败拆成可改正的故障模式，而不是停在「炸了」这个结论。",
+   ex:"猎鹰 1 号三次失败后的公开根因分析；星舰 SN8–SN15",
+   full:"SpaceX 对猎鹰 1 号三次失败都发布过根因：第一次燃料管接腐蚀泄漏起火；第二次二级晃动与控制系统耦合；第三次新 Merlin 1C 关机后残余推力让一二级相撞。第四次（2008-09-28）成为首枚由私人全额出资研制的液体轨道火箭。2020–2021 年星舰 SN 系列同样公开试飞、公开炸、改完再飞，SN15 完成起降。本条没有强行安一句找不到出处的「爆炸就是进度」口号。"},
+  {id:"c9",name:"扁平化指令链",weight:46,src:"Tesla 2018 内部邮件",
+   def:"信息走最短路径，不许用「层级」挡住解决问题的人。",
+   ex:"2018 年特斯拉沟通备忘：可越级，禁止用指挥链锁死沟通",
+   quotes:[
+     {text:"Communication should travel via the shortest path necessary to get the job done, not through the “chain of command”. Any manager who attempts to enforce chain of command communication will soon find themselves working elsewhere.",
+      src:"Elon Musk 致 Tesla 员工邮件，Electrek 刊载全文，2018-04-17",
+      url:"https://electrek.co/2018/04/17/tesla-model-3-production-goal-6000-units-per-week/"}
+   ],
+   full:"旧版「CEO 直接审工程师代码」说得太绝对。可核验的是 2018 年 4 月 17 日这封被 Electrek 全文刊载的邮件：沟通按把事做完的最短路径，经理不得以指挥链封锁。扁平化是减少信息衰减，不是宣称他审过每一行代码。"},
+  {id:"c10",name:"删到不能再删",weight:50,src:"Isaacson 2023 算法第 2 步",
+   def:"先删过头，再把必须的加回来；一次都没加回，说明删得太保守。",
+   ex:"算法明确给出约 10% 加回作为自检",
+   quotes:[
+     {text:"Delete any part or process you can. You may have to add them back later. In fact, if you do not end up adding back at least 10% of them, then you didn't delete enough.",
+      src:"Walter Isaacson《Elon Musk》(2023) 所记算法第 2 步",
+      url:"https://www.simonandschuster.com/books/Elon-Musk/Walter-Isaacson/9781982181284"}
+   ],
+   full:"旧版用「Model 3 只留一块中控屏」当这条的唯一例证，把产品造型选择说成算法原文，过满。原话是流程/零件删除的自检：若从来不必加回约一成，说明删除不够狠。中控屏极简化是特斯拉设计语言，可以并列讨论，但不能冒充这条规则的定义。"}
 ];
 
 const people = [
-  {id:"p1",name:"格温·肖特维尔",role:"SpaceX总裁",cites:47,contrib:"组织稳定器",status:"in",statusText:"✅ 仍在职",init:"GS",color:"#ff6600",
-   full:"SpaceX真正的二把手与日常运营核心。在马斯克情绪激烈、\"蹦三丈高\"的时候，她在后方稳住组织、对接客户与员工，把愿景翻译成可执行的运营。被视为公司能长期运转的关键人物。"},
-  {id:"p2",name:"汤姆·穆勒",role:"火箭发动机之父",cites:32,contrib:"猎鹰引擎实现者",status:"out",statusText:"❌ 被解雇",init:"TM",color:"#ff6600",
-   full:"梅林（Merlin）发动机的核心设计者，SpaceX早期推进系统的灵魂人物，让\"自研便宜火箭\"从图纸变成真正能点火入轨的引擎。后期离开公司。"},
-  {id:"p3",name:"JB·斯特劳贝尔",role:"电池系统鼻祖",cites:28,contrib:"Model S / Roadster 电池包",status:"out",statusText:"❌ 主动离开",init:"JB",color:"#ff6600",
-   full:"特斯拉早期CTO，电池与动力系统的奠基者，奠定了Roadster到Model S的电池架构。后来主动离开创办电池回收公司Redwood Materials。"},
-  {id:"p4",name:"弗朗茨·冯·霍尔茨豪森",role:"首席设计师",cites:24,contrib:"特斯拉所有车型设计",status:"in",statusText:"✅ 仍在职",init:"FH",color:"#ff6600",
-   full:"特斯拉从Model S到Cybertruck几乎所有车型的设计负责人，把\"删到不能再删\"的极简美学落到外观与内饰，长期与马斯克并肩工作。"},
-  {id:"p5",name:"金巴尔·马斯克",role:"弟弟 + 早期合伙人",cites:18,contrib:"Zip2创业搭档",status:"in",statusText:"✅ 至今亲密",init:"KM",color:"#ff6600",
-   full:"埃隆的弟弟，第一段创业Zip2的合伙人，早期和哥哥一起睡办公室、共用一台电脑写代码。后来成为餐饮创业者，并长期担任特斯拉/SpaceX董事。"},
-  {id:"p6",name:"梅耶·马斯克",role:"母亲",cites:15,contrib:'给了"你可以做任何事"的底层安全感',status:"in",statusText:"✅ 至今支持",init:"MM",color:"#ff6600",
-   full:"模特与营养师，在艰难处境中独自养大三个孩子，给了埃隆\"你可以去做任何事\"的底层心理安全感——这被认为是他敢于做高风险决策的性格根源之一。"},
-  {id:"p7",name:"彼得·蒂尔",role:"Founders Fund",cites:12,contrib:"2008年SpaceX救命钱",status:"in",statusText:"✅ 至今盟友",init:"PT",color:"#ff6600",
-   full:"PayPal时期的同事与对手，后成为投资人。在2008年SpaceX最危急时，其Founders Fund的注资成为公司续命的关键资本之一。"},
+  {id:"p1",name:"格温·肖特维尔",role:"SpaceX 总裁兼 COO",weight:70,src:"SpaceX 公开职务",
+   contrib:"把发射、客户与运营从愿景落成可执行日程",status:"in",statusText:"✅ 公开职务仍为总裁兼 COO",init:"GS",color:"#ff6600",
+   full:"Gwynne Shotwell 长期担任 SpaceX 总裁兼首席运营官，负责商业订单、发射执行与日常运营。公开报道与公司材料把她放在「能把马斯克的目标翻译成合同与航班」的位置。本站不编造她的私下对话。"},
+  {id:"p2",name:"汤姆·穆勒",role:"Merlin 发动机主导者 · SpaceX 1 号员工",weight:62,src:"本人 2020-11-30 声明",
+   contrib:"Merlin / Draco 等早期推进系统",status:"out",statusText:"↩ 2020-11-30 退休（不是解雇）· 后创办 Impulse Space",init:"TM",color:"#ff6600",
+   full:"Tom Mueller 是 SpaceX 创始雇员，主导 Merlin、Draco、SuperDraco 等发动机。旧版写成「被解雇」，与公开记录不符：他于 2020 年 11 月 30 日声明退休，2021 年创办 Impulse Space。发动机自研是第一性成本能落地的关键工程能力。"},
+  {id:"p3",name:"JB·斯特劳贝尔",role:"特斯拉联合创始人 / 前 CTO",weight:56,src:"Tesla 2019 离职 · Redwood",
+   contrib:"早期电池包与动力系统",status:"out",statusText:"↩ 2019 年离开 · 创办 Redwood Materials",init:"JB",color:"#ff6600",
+   full:"Jeffrey B. Straubel 是特斯拉早期技术核心，Roadster 到 Model S 的电池与动力架构多与他相关。2019 年离开后创办电池回收公司 Redwood Materials。旧版「主动离开」方向对，补充可核对的公司与年份。"},
+  {id:"p4",name:"弗朗茨·冯·霍尔茨豪森",role:"特斯拉首席设计师",weight:52,src:"Tesla 公开职务（2008–）",
+   contrib:"Model S/3/X/Y、Cybertruck、Semi 等量产设计",status:"in",statusText:"✅ 公开材料仍称首席设计师",init:"FH",color:"#ff6600",
+   full:"Franz von Holzhausen 2008 年起任特斯拉首席设计师。极简内饰与「能删则删」在车型上可见，但设计决策是团队与监管约束的结果，不宜把整台车说成某一条语录的直接产物。"},
+  {id:"p5",name:"金巴尔·马斯克",role:"弟弟 · Zip2 早期合伙人",weight:40,src:"公开传记 / 董事披露",
+   contrib:"Zip2 起步搭档；长期任特斯拉董事",status:"in",statusText:"✅ 仍任特斯拉董事（以公司披露为准）",init:"KM",color:"#ff6600",
+   full:"Kimbal Musk 与埃隆共同创办 Zip2。早期两人挤办公室写代码的情节见于公开传记。后来做餐饮与食品，并长期出现在特斯拉董事会名单中。"},
+  {id:"p6",name:"梅耶·马斯克",role:"母亲 · 模特 / 营养师 / 作者",weight:32,src:"公开传记与本人著作",
+   contrib:"家庭背景与公开自述中的成长环境",status:"in",statusText:"✅ 公开场合仍支持子女事业",init:"MM",color:"#ff6600",
+   full:"Maye Musk 公开谈过单亲抚养与工作经历。旧版把「你可以做任何事」写成她的原话并当作性格根源，本站找不到可核对的同一句引语，故改为传记级综述，不再伪造家训。"},
+  {id:"p7",name:"彼得·蒂尔",role:"PayPal 同事 · Founders Fund",weight:36,src:"2008 年 SpaceX 融资报道",
+   contrib:"金融危机期间对 SpaceX 的关键投资之一",status:"in",statusText:"✅ 长期公开往来的投资人/评论者",init:"PT",color:"#ff6600",
+   full:"Peter Thiel 在 PayPal 时期与马斯克同事，后通过 Founders Fund 在 2008 年前后参与 SpaceX 融资，当时报道将其视为续命资本之一。两人后来在政治与产品上常有分歧，不宜写成无条件同盟。"}
 ];
 
 const cases = [
-  {id:"k1",name:"猎鹰1号三次爆炸",cites:40,time:"2006–2008",color:"#ff3333",
-   conflict:"钱快烧光，第四次再炸公司就完了",action:"睡在发射场、逐个排查根因、把每次失败当数据",result:"第四次成功入轨，SpaceX起死回生",
-   full:"猎鹰1号前三次发射接连失败，资金濒临耗尽。马斯克没有推诿，而是亲临夸贾林环礁发射场，把每次爆炸都拆成可分析的故障数据。2008年第四次发射成功入轨，成为首枚由私人企业送入轨道的液体燃料火箭。"},
-  {id:"k2",name:"Model 3 产能地狱",cites:38,time:"2018",color:"#ff3333",
-   conflict:"周产卡在2000辆，目标5000辆",action:"睡工厂、开掉只会做PPT的VP、亲自当产线经理",result:"约6周后达成5000辆/周",
-   full:"Model 3量产初期产线问题堆积，过度自动化反成瓶颈。马斯克搬进工厂、拆掉部分自动化、扁平化指挥，亲自走线调节拍，最终在数周内把周产能拉到目标线，公司挺过资金最紧张的阶段。"},
-  {id:"k3",name:"Twitter 收购",cites:30,time:"2022",color:"#ff3333",
-   conflict:"440亿要约 → 反悔 → 被迫完成交易",action:"在极限不确定下推进，事后大规模重构组织",result:"完成收购，更名为X，争议持续",
-   full:"从主动报价到试图退出、再到法律压力下被迫完成，整个过程是风险不对称与极端决策风格的集中体现。收购后大幅裁员、重构产品，并衍生出后续的AI布局。"},
-  {id:"k4",name:"星舰 SN 系列迭代",cites:22,time:"2020–2021",color:"#ff3333",
-   conflict:"SN8–SN15 多次爆炸到成功降落",action:"每次爆炸后立刻改设计，不追求一次完美",result:"SN15成功软着陆，验证迭代式研发",
-   full:"星舰原型机在试飞中接连炸毁，但每次都带回大量飞行数据。\"失败即数据\"在这里被发挥到极致——快速造、快速炸、快速改，最终SN15实现完整起降。"},
-  {id:"k5",name:"2008 双线危机",cites:20,time:"2008",color:"#ff3333",
-   conflict:"SpaceX第三次爆炸 + Tesla Roadster交付危机同时爆发",action:"投入个人最后一笔资金，两线都不放弃",result:"年底SpaceX入轨成功，特斯拉拿到关键融资",
-   full:"金融危机叠加两家公司同时濒临破产，马斯克把卖PayPal所剩的资金几乎全部押上，在SpaceX与特斯拉之间分配最后的现金。年底猎鹰1号成功、特斯拉融资到账，两家公司同时被从悬崖边拉回。"},
+  {id:"k1",name:"猎鹰 1 号三次失败",weight:74,time:"2006–2008-09-28",color:"#ff3333",src:"SpaceX / DARPA / 航天报道",
+   conflict:"三次发射失败，现金与信誉都接近耗尽",action:"公布根因、改设计、坚持第四次",result:"2008-09-28 第四次入轨",
+   full:"公开故障链：2006-03-24 第一次，燃料管接腐蚀泄漏起火；2007-03-21 第二次，二级推进剂晃动与控制耦合；2008-08-03 第三次，Merlin 1C 关机后残余推力造成级间碰撞。马斯克当时公开发布第三次根因说明。第四次于 2008 年 9 月 28 日把模拟载荷送入近地轨道，是私人全额出资液体火箭首次轨道发射成功。"},
+  {id:"k2",name:"Model 3 产能地狱",weight:70,time:"2017–2018",color:"#ff3333",src:"特斯拉产量披露 · Reuters 2018-07",
+   conflict:"量产爬坡远慢于目标，过度自动化成为瓶颈",action:"回到产线、公开睡工厂、拆掉部分自动化",result:"2018 年 6 月末一周达到约 5000 辆 Model 3",
+   quotes:[
+     {text:"I'm back to sleeping at factory. Car biz is hell.",
+      src:"Elon Musk，2018-04-02",
+      url:"https://www.cnbc.com/2018/04/03/elon-musk-tweets-that-hes-sleeping-at-the-tesla-factory.html"}
+   ],
+   full:"2018 年 4 月初公司称过去七天 Model 3 约 2020 辆，并仍指向 5000 辆/周。马斯克把自动化过早上线视为弗里蒙特的核心错误（与五步法最后一步相印证）。达标时间以 Reuters 对 2018 年 6 月最后一周及 7 月 1 日员工邮件的报道为准，而不是「六周」。"},
+  {id:"k3",name:"Twitter / X 收购",weight:58,time:"2022",color:"#ff3333",src:"SEC / 法院记录 · 公开报道",
+   conflict:"440 亿美元要约后试图退出，特拉华法院推动履行",action:"完成交割、大规模裁员、提出 hardcore 要求、改名 X",result:"2022-10 交割，争议与诉讼持续多年",
+   full:"过程有文件可查：提议、融资、试图终止、诉讼、2022 年 10 月交割。此后组织被大幅压缩，产品改名为 X。是否「值」取决于估值口径与时间窗口，本站不替任何一方做财务结论。xAI 于 2023 年成立，与这次收购在公开叙事里常被放在同一条内容/数据战略下，但法律实体并不自动等于因果。"},
+  {id:"k4",name:"星舰 SN 系列迭代",weight:54,time:"2020–2021",color:"#ff3333",src:"SpaceX 公开试飞",
+   conflict:"SN8–SN11 等高空试飞多次在着陆或下落中解体",action:"每次公开失败后改结构与发动机，继续短周期试飞",result:"SN15 于 2021-05-05 完成起降",
+   full:"星舰原型机在博卡奇卡的 SN 系列是「失败即数据」的公开演示：爆炸被直播，随后改设计。SN15 在 2021 年 5 月 5 日完成着陆。这只覆盖原型机阶段；后续轨道试飞是另一条仍在展开的工程线，不把 SN15 写成火星计划已经完成。"},
+  {id:"k5",name:"2008 双线危机",weight:60,time:"2008",color:"#ff3333",src:"TED 2013 · 同期融资/发射记录",
+   conflict:"SpaceX 与 Tesla 同时缺钱，又碰上金融危机",action:"个人剩余资金拆给两家，坚持第四次发射",result:"猎鹰入轨 + 特斯拉获得关键融资，两家活过年底",
+   quotes:[
+     {text:"We came very close to failure, but we managed to get through that point in 2008.",
+      src:"Elon Musk，TED2013",
+      url:"https://www.ted.com/talks/elon_musk_the_mind_behind_tesla_spacex_solarcity"}
+   ],
+   full:"时间线可并排核对：猎鹰 1 号第三次失败在 8 月，第四次成功在 9 月 28 日；特斯拉同年濒临无法发工资的公开叙述见传记与当时报道。TED 2013 他亲口说 2008 年几乎没撑过去。"}
 ];
 
 const companies = [
-  {id:"m1",name:"SpaceX",cites:58,tagline:"让人类成为多行星物种",color:"#3399ff",
-   full:"2002年成立，以可回收火箭把发射成本压低一个数量级，旗下星链（Starlink）提供全球卫星互联网，星舰（Starship）瞄准月球与火星运输。第一性原理与失败即数据在这里被反复验证。"},
-  {id:"m2",name:"Tesla",cites:50,tagline:"加速世界向可持续能源转变",color:"#3399ff",
-   full:"电动车、储能与太阳能一体化公司。从Roadster到Model 3/Y，把电动车从小众推向主流；五步工作法、睡工厂管理都在这里成型。"},
-  {id:"m3",name:"xAI",cites:14,tagline:"理解宇宙的真实本质",color:"#3399ff",
-   full:"2023年创立的人工智能公司，推出Grok大模型，与X平台深度绑定。是马斯克对AI安全长期关注后亲自下场的产物。"},
-  {id:"m4",name:"Neuralink",cites:11,tagline:"连接人脑与计算机",color:"#3399ff",
-   full:"脑机接口公司，研发可植入芯片，目标先帮助瘫痪等患者恢复能力，长期愿景是实现人机高带宽交互。"},
-  {id:"m5",name:"The Boring Company",cites:9,tagline:"用隧道解决城市拥堵",color:"#3399ff",
-   full:"挖掘公司，试图通过低成本隧道与地下交通系统缓解地面拥堵，从一个略带玩笑的想法演变为实际工程项目。"},
+  {id:"m1",name:"SpaceX",weight:80,src:"公司公开使命 / 发射记录",tagline:"使生命成为多行星现象",color:"#3399ff",
+   full:"2002 年成立。可核验主线：猎鹰系列入轨与回收、Dragon 载人/货运、Starlink 卫星互联网、Starship 在得州试飞。TED 2013 他把完全可复用火箭说成成为航天文明的关键。第一性成本与失败即数据主要在这里被公开检验。"},
+  {id:"m2",name:"Tesla",weight:76,src:"公司公开使命 / 产量披露",tagline:"加速世界向可持续能源转变",color:"#3399ff",
+   full:"电动车、储能与太阳能。五步工作法与睡工厂管理的公开案例多发生在弗里蒙特 Model 3 爬坡。上海超级工厂 2019 年起成为重要产能基地，是公开事实。自动驾驶技术路线（纯视觉 vs 激光雷达）是有争议的工程押注，见聊天预设中的标明来源条目。"},
+  {id:"m3",name:"xAI",weight:40,src:"2023 年创立公告 · Grok",tagline:"理解宇宙的真实本质",color:"#3399ff",
+   full:"2023 年 7 月前后公开创立，产品为 Grok，并与 X 平台有分发关系。马斯克是 OpenAI 早期资助者/联合创始人之一，后退出并公开批评其方向，再自建 xAI。2026 年有多家媒体报道 SpaceX 与 xAI 的合并安排；本站不把未在官方文件里钉死的估值数字写进卡片。"},
+  {id:"m4",name:"Neuralink",weight:34,src:"Reuters 2024-01-29",tagline:"脑机接口，先服务严重瘫痪患者",color:"#3399ff",
+   full:"研发植入式脑机接口。2024 年 1 月 29 日路透社报道马斯克称首位人体受试者已接受植入并恢复良好；后续公开身份为四肢瘫痪患者 Noland Arbaugh（PRIME 研究）。大规模「健康人增强」没有可靠时间表，本站不编造商用日期。"},
+  {id:"m5",name:"The Boring Company",weight:28,src:"拉斯维加斯 LVCC Loop 公开运营",tagline:"用隧道降低城市点对点交通成本",color:"#3399ff",
+   full:"2016 年前后成立。已落地的公开项目包括拉斯维加斯会展中心（LVCC）地下环线。名字和早期喷火器产品带有玩笑成分，但不等于没有工程实体。城市拥堵是否被「解决」仍是开放问题。"}
 ];
 
 /* edges: source, target, relation */
@@ -446,25 +573,37 @@ const links = [
 ];
 
 /* ============ RENDER CARDS ============ */
+function esc(s){
+  return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function quotesHTML(list){
+  return (list||[]).map(q=>{
+    const link = q.url ? ` · <a href="${esc(q.url)}" target="_blank" rel="noopener noreferrer">原文</a>` : "";
+    return `<blockquote class="quote">${esc(q.text)}<span class="qsrc">${esc(q.src)}${link}</span></blockquote>`;
+  }).join("");
+}
+function searchBlob(obj){
+  const parts=[obj.name,obj.def,obj.ex,obj.full,obj.src,obj.role,obj.contrib,obj.conflict,obj.action,obj.result,obj.tagline,obj.statusText];
+  (obj.quotes||[]).forEach(q=>{ parts.push(q.text,q.src); });
+  return parts.filter(Boolean).join(" ").toLowerCase();
+}
 function avatarSVG(init,color){
   return `<svg class="avatar" viewBox="0 0 52 52">
     <circle cx="26" cy="26" r="24" fill="#0d0d0d" stroke="${color}" stroke-width="1.5"/>
-    <circle cx="26" cy="20" r="8" fill="none" stroke="${color}" stroke-width="1.5" opacity=".7"/>
-    <path d="M12 46 Q26 32 40 46" fill="none" stroke="${color}" stroke-width="1.5" opacity=".7"/>
-    <text x="26" y="30" text-anchor="middle" font-family="monospace" font-size="11" fill="${color}" opacity=".0">${init}</text>
+    <text x="26" y="31" text-anchor="middle" font-family="monospace" font-size="13" fill="${color}">${esc(init)}</text>
   </svg>`;
 }
 
 const cg = document.getElementById('conceptsGrid');
 concepts.forEach((c,i)=>{
   const el=document.createElement('div'); el.className='card'; el.dataset.id=c.id;
-  el.dataset.search=(c.name+c.def+c.ex).toLowerCase();
+  el.dataset.search=searchBlob(c);
   el.innerHTML=`<div class="rank">#${String(i+1).padStart(2,'0')}</div>
-    <h3>${c.name}</h3>
-    <div class="cites">被引用 ${c.cites} 次</div>
-    <div class="def">${c.def}</div>
-    <div class="ex">${c.ex}</div>
-    <div class="more">${c.full}</div>
+    <h3>${esc(c.name)}</h3>
+    <div class="srcpill">${esc(c.src)}</div>
+    <div class="def">${esc(c.def)}</div>
+    <div class="ex">${esc(c.ex)}</div>
+    <div class="more">${quotesHTML(c.quotes)}<p>${esc(c.full)}</p></div>
     <div class="toggle">[ + 展开全文 ]</div>`;
   bindCard(el); cg.appendChild(el);
 });
@@ -472,13 +611,13 @@ concepts.forEach((c,i)=>{
 const pg=document.getElementById('peopleGrid');
 people.forEach(p=>{
   const el=document.createElement('div'); el.className='card'; el.dataset.id=p.id;
-  el.dataset.search=(p.name+p.role+p.contrib).toLowerCase();
+  el.dataset.search=searchBlob(p);
   el.innerHTML=`<div class="person-top">${avatarSVG(p.init,p.color)}
-      <div><h3 style="padding-right:0">${p.name}</h3>
-      <div class="person-meta">${p.role} · 被引用 ${p.cites} 次</div></div></div>
-    <div class="def" style="margin-top:12px">${p.contrib}</div>
-    <div class="status ${p.status}">${p.statusText}</div>
-    <div class="more">${p.full}</div>
+      <div><h3 style="padding-right:0">${esc(p.name)}</h3>
+      <div class="person-meta">${esc(p.role)} · ${esc(p.src)}</div></div></div>
+    <div class="def" style="margin-top:12px">${esc(p.contrib)}</div>
+    <div class="status ${esc(p.status)}">${esc(p.statusText)}</div>
+    <div class="more">${quotesHTML(p.quotes)}<p>${esc(p.full)}</p></div>
     <div class="toggle">[ + 展开全文 ]</div>`;
   bindCard(el); pg.appendChild(el);
 });
@@ -486,14 +625,14 @@ people.forEach(p=>{
 const kg=document.getElementById('casesGrid');
 cases.forEach(c=>{
   const el=document.createElement('div'); el.className='card'; el.dataset.id=c.id;
-  el.dataset.search=(c.name+c.conflict+c.action+c.result).toLowerCase();
-  el.innerHTML=`<div class="case-time">${c.time}</div>
-    <h3 style="margin-top:4px">${c.name}</h3>
-    <div class="cites">被引用 ${c.cites} 次</div>
-    <div class="case-row"><span class="k">核心冲突</span>${c.conflict}</div>
-    <div class="case-row"><span class="k">马斯克怎么做</span>${c.action}</div>
-    <div class="case-row"><span class="k">结果</span>${c.result}</div>
-    <div class="more">${c.full}</div>
+  el.dataset.search=searchBlob(c);
+  el.innerHTML=`<div class="case-time">${esc(c.time)}</div>
+    <h3 style="margin-top:4px">${esc(c.name)}</h3>
+    <div class="srcpill">${esc(c.src)}</div>
+    <div class="case-row"><span class="k">核心冲突</span>${esc(c.conflict)}</div>
+    <div class="case-row"><span class="k">马斯克怎么做</span>${esc(c.action)}</div>
+    <div class="case-row"><span class="k">结果</span>${esc(c.result)}</div>
+    <div class="more">${quotesHTML(c.quotes)}<p>${esc(c.full)}</p></div>
     <div class="toggle">[ + 展开全文 ]</div>`;
   bindCard(el); kg.appendChild(el);
 });
@@ -501,17 +640,27 @@ cases.forEach(c=>{
 const mg=document.getElementById('companiesGrid');
 companies.forEach(m=>{
   const el=document.createElement('div'); el.className='card company'; el.dataset.id=m.id;
-  el.dataset.search=(m.name+m.tagline).toLowerCase();
-  el.innerHTML=`<h3>${m.name}</h3>
-    <div class="cites">被引用 ${m.cites} 次</div>
-    <div class="def">${m.tagline}</div>
-    <div class="more">${m.full}</div>
+  el.dataset.search=searchBlob(m);
+  el.innerHTML=`<h3>${esc(m.name)}</h3>
+    <div class="srcpill">${esc(m.src)}</div>
+    <div class="def">${esc(m.tagline)}</div>
+    <div class="more">${quotesHTML(m.quotes)}<p>${esc(m.full)}</p></div>
     <div class="toggle">[ + 展开全文 ]</div>`;
   bindCard(el); mg.appendChild(el);
 });
 
+const sl=document.getElementById('sourcesList');
+bibliography.forEach(b=>{
+  const li=document.createElement('li');
+  li.innerHTML=`<a href="${esc(b.url)}" target="_blank" rel="noopener noreferrer">${esc(b.title)}</a>
+    <span class="smeta">${esc(b.meta)}</span>
+    <div style="margin-top:6px">${esc(b.note)}</div>`;
+  sl.appendChild(li);
+});
+
 function bindCard(el){
-  el.addEventListener('click',()=>{
+  el.addEventListener('click',e=>{
+    if(e.target.closest('a')) return;
     el.classList.toggle('open');
     const t=el.querySelector('.toggle');
     t.textContent = el.classList.contains('open') ? '[ − 收起 ]' : '[ + 展开全文 ]';
@@ -531,6 +680,7 @@ search.addEventListener('input',()=>{
     if(hit)visible++;
   });
   document.querySelectorAll('#listView section').forEach(s=>{
+    if(s.id==='sources'){ s.style.display = q ? 'none' : ''; return; }
     const any=[...s.querySelectorAll('.card')].some(c=>c.style.display!=='none');
     s.style.display=any?'':'none';
   });
@@ -583,8 +733,8 @@ function buildGraph(){
 
   // assemble nodes
   const all=[...concepts,...people,...cases,...companies].map(d=>({
-    id:d.id, name:d.name, cites:d.cites, type:d.id[0],
-    color:TYPE[d.id[0]].color, r:5+4.6*Math.log(d.cites)
+    id:d.id, name:d.name, weight:d.weight||10, type:d.id[0],
+    color:TYPE[d.id[0]].color, r:5+4.6*Math.log(d.weight||10)
   }));
   const idmap=Object.fromEntries(all.map(n=>[n.id,n]));
   const ls=links.map(l=>({source:idmap[l.s],target:idmap[l.t],r:l.r}));
@@ -666,14 +816,14 @@ function showDetail(d,adj){
     return `<b>${n.name}</b> <span style="color:#555">(${rel?rel.r:''})</span>`;
   }).join(" · ");
   let body="";
-  if(d.type==='c') body=`<p>${data.def}</p><p>${data.full}</p>`;
-  else if(d.type==='p') body=`<p>${data.role} · ${data.statusText}</p><p>${data.full}</p>`;
-  else if(d.type==='k') body=`<p style="color:#00ff41;font-family:monospace">${data.time}</p><p>${data.full}</p>`;
-  else body=`<p style="color:#3399ff">${data.tagline}</p><p>${data.full}</p>`;
+  if(d.type==='c') body=`<p>${esc(data.def)}</p>${quotesHTML(data.quotes)}<p>${esc(data.full)}</p>`;
+  else if(d.type==='p') body=`<p>${esc(data.role)} · ${esc(data.statusText)}</p>${quotesHTML(data.quotes)}<p>${esc(data.full)}</p>`;
+  else if(d.type==='k') body=`<p style="color:#00ff41;font-family:monospace">${esc(data.time)}</p>${quotesHTML(data.quotes)}<p>${esc(data.full)}</p>`;
+  else body=`<p style="color:#3399ff">${esc(data.tagline)}</p>${quotesHTML(data.quotes)}<p>${esc(data.full)}</p>`;
   detail.innerHTML=`<div class="x" id="dclose">[关闭]</div>
     <div class="dtype" style="color:${t.color}">${t.label}</div>
-    <h3>${data.name}</h3>
-    <div class="dcites">被引用 ${data.cites} 次</div>
+    <h3>${esc(data.name)}</h3>
+    <div class="dcites">${esc(data.src||'')}</div>
     ${body}
     <div class="conn"><span style="color:${t.color}">▸ 相连节点</span><br>${neighbors||'—'}</div>
     <div class="jump" id="djump">⤵ 跳转到对应卡片</div>`;
@@ -698,49 +848,49 @@ function jumpToCard(id){
 function graphSearch(q){
   if(!window._gnode)return;
   if(!q){ window._greset(); detailLock=false; return; }
-  window._gnode.style("opacity",d=>d.name.toLowerCase().includes(q)?1:0.12);
-  window._gnode.select("circle").attr("stroke-width",d=>d.name.toLowerCase().includes(q)?3:1.5);
+  const hit=d=>searchBlob(nodeData(d.id)).includes(q);
+  window._gnode.style("opacity",d=>hit(d)?1:0.12);
+  window._gnode.select("circle").attr("stroke-width",d=>hit(d)?3:1.5);
 }
 
 
 /* ============ CHAT (v3) ============ */
 const PRESETS=[
- {kw:["第一性","原理","first principle"],a:"**第一性原理**是马斯克最底层的思维方式：不靠类比（“别人都这么做”），而是把问题拆到物理事实，再从头重建。\n经典例子：他算出火箭的原材料成本只占售价约2%，于是推断火箭能便宜两个数量级——这就是SpaceX自研可回收火箭的逻辑起点。",s:"来源：核心概念卡片 · 艾萨克森《马斯克传》"},
- {kw:["五步","工作法","五步法"],a:"**五步工作法**，顺序不能乱：\n**①质疑**每条需求（并让提需求的人具名）→ **②删除**不必要的零件/流程 → **③优化**剩下的 → **④加速**节拍 → **⑤自动化**。\n最常见的错误是跳过前两步直接自动化——等于把不该存在的步骤工业化。",s:"来源：核心概念卡片"},
- {kw:["格温","肖特维尔","shotwell","二把手"],a:"**格温·肖特维尔**是SpaceX总裁兼COO，公司真正的二把手和日常运营核心。\n马斯克情绪激烈时，是她在后方稳住组织、对接客户和员工，把愿景翻译成能落地的运营。被很多人视为SpaceX能长期运转的关键。",s:"来源：关键人物卡片"},
- {kw:["猎鹰","falcon","炸了三次","三次","爆炸"],a:"**猎鹰1号**前三次发射接连失败：燃料管路腐蚀起火、二级晃动失控、一二级分离时相撞。\n马斯克没有推诿，亲临发射场逐个排查根因，把每次爆炸当**数据**。2008年第四次成功入轨，公司起死回生。\n（故障细节确定性：约80%）",s:"来源：经典案例卡片 · 公开报道"},
- {kw:["睡工厂","睡袋","住工厂"],a:"2018年**Model 3产能地狱**期间，周产卡在2000辆、目标5000辆。马斯克认为问题不在会议室、在产线上。\n他把睡袋搬进弗里蒙特工厂，亲自走产线、调节拍、开掉只会做PPT汇报的经理。约**6周后**达到5000辆/周。",s:"来源：经典案例卡片 · 马斯克传"},
- {kw:["后悔","遗憾"],a:"他公开提到的“后悔”，多集中在**用人和发推**两类——比如某些冲动推文带来的麻烦。\n但马斯克很少长时间停留在后悔上，更倾向把失败当数据往前走。\n（主观问题，确定性：约60%）",s:"来源：公开访谈（谨慎参考）"},
- {kw:["乔布斯","jobs","谁厉害"],a:"没有标准答案，两人风格不同：\n**乔布斯**强在产品直觉、审美和叙事，把现有技术整合成极致体验；\n**马斯克**强在第一性原理驱动的硬核工程，敢碰火箭、电车这类重资产高风险领域。\n一个是“产品艺术家”，一个是“工程赌徒”。",s:"来源：综合评述（观点性）"},
- {kw:["x æ","a-12","孩子名","儿子名字","起名"],a:"**X Æ A-12** 是马斯克和音乐人Grimes给孩子起的名字：X代表未知变量，Æ是两人对“AI/爱”的写法，A-12取自他们喜欢的侦察机。\n因加州法规不允许数字，后登记改为 **X Æ A-Xii**。",s:"来源：公开报道 · Grimes社交媒体"},
- {kw:["睡几","睡眠","几个小时","作息"],a:"按他公开说法，通常睡**6小时左右**，再少效率反而下降。冲刺期会更少、甚至睡在工厂。\n（确定性：约70%，不同年份说法略有出入）",s:"来源：公开访谈"},
- {kw:["佩服","崇拜","偶像","敬佩"],a:"他公开表达敬意的对象里，常被提到**尼古拉·特斯拉**（公司名来源），以及一些科幻作家和工程先驱。\n（主观问题，确定性：约55%）",s:"来源：公开访谈"},
- {kw:["twitter","推特","买推特","收购twitter","x平台"],a:"他公开理由是**言论自由**、打造“数字城镇广场”。\n过程很戏剧：440亿要约→试图退出→法律压力下被迫完成→更名**X**→大规模裁员重构，并衍生出后来的**xAI**。争议至今未平。",s:"来源：经典案例卡片 · 公开报道"},
- {kw:["火星","starship","去火星","mars"],a:"**星舰**是火星计划的运载核心。马斯克给过很多时间表但屡次推迟，目前更现实的路径是先完成无人货运验证。\n**确定性：约40%**——他的时间表历史上一直偏乐观，谨慎参考。",s:"来源：公开发言（时间表波动大）"},
- {kw:["ai风险","人工智能风险","ai危险","怎么看ai"],a:"马斯克是**AI风险**的长期警示者，多次称其为人类最大生存威胁之一，主张监管。\n应对上：早期参与创立OpenAI→退出并批评其转向→亲自创立**xAI**，想做“更追求真相”的AI。",s:"来源：公开访谈 · xAI"},
- {kw:["最喜欢","喜欢哪","车型","哪辆车"],a:"他在不同场合表达过对 **Model S Plaid** 性能的偏爱，也对 **Cybertruck** 投入了很深的个人情感。\n（主观，确定性：约60%）",s:"来源：公开访谈"},
- {kw:["最失败的收购","失败的收购","收购失败"],a:"争议最大的是 **Twitter（X）收购**：440亿高价、随后估值大幅缩水，被很多人视为财务败笔。\n但马斯克更愿意从长期战略（言论平台+AI数据）角度辩护，是否“失败”取决于时间维度。",s:"来源：公开报道（评价性）"},
- {kw:["对员工","员工要求","加班","工作强度","hardcore"],a:"核心是**硬核（hardcore）**：长时间、高强度、结果导向，拒绝PPT式汇报，要求直接讲数据。\n接管Twitter时他发过著名的“hardcore”最后通牒，要求员工承诺极端投入，否则离开。",s:"来源：核心概念卡片 · 公开报道"},
- {kw:["穆勒","muller","mueller","发动机之父"],a:"**汤姆·穆勒**是梅林发动机核心设计者、SpaceX早期推进系统的灵魂，后期离开公司。\n外界报道多与战略方向、个人阶段有关，**具体内情公开信息有限，确定性：约50%**，不臆测。",s:"来源：关键人物卡片（细节谨慎）"},
- {kw:["弟弟","金巴尔","kimbal","兄弟"],a:"弟弟**金巴尔·马斯克**是第一段创业Zip2的合伙人，早期两人睡办公室、共用一台电脑写代码。\n至今关系亲密，长期担任特斯拉/SpaceX董事，后来自己做餐饮和食物科技。",s:"来源：关键人物卡片 · 马斯克传"},
- {kw:["母亲","妈妈","梅耶","maye"],a:"母亲**梅耶·马斯克**在艰难处境中独自养大三个孩子，给了埃隆“**你可以去做任何事**”的底层心理安全感。\n这被认为是他敢反复下高风险决策的性格根源之一。",s:"来源：关键人物卡片 · 马斯克传"},
- {kw:["管理两家","两家公司","同时管","分配时间","多家公司"],a:"靠几条：**扁平化指令链**（越层直接找负责人）、**问题导向**（哪有问题去哪，如睡工厂）、**高度授权运营**（如肖特维尔管SpaceX日常），自己聚焦工程和关键决策。",s:"来源：核心概念卡片"},
- {kw:["中国建厂","建厂","上海","中国工厂","超级工厂"],a:"特斯拉**上海超级工厂**已是事实：2019年落成投产，是特斯拉全球重要产能和出口基地。\n若你问的是“是否新增/扩建”，属于动态新闻，建议查最新消息确认。",s:"来源：公开事实（上海工厂已建成）"},
- {kw:["比亚迪","byd"],a:"早年马斯克曾对比亚迪不以为然（一段被反复引用的访谈嘲笑），但近年公开**改口认可**其竞争力和产品进步。态度有明显转变。",s:"来源：公开访谈（前后态度变化）"},
- {kw:["脑机","neuralink","商用","植入","芯片"],a:"**Neuralink**已进入人体临床试验，目标先帮助瘫痪等患者恢复能力。\n大规模“健康人增强”式商用还很远，没有可靠时间表。**确定性：约45%**。",s:"来源：Neuralink · 公开报道"},
- {kw:["隧道","boring","玩具","挖隧道","无聊公司"],a:"**The Boring Company**最初带点玩笑性质（连名字和喷火枪都是梗），但已落地实际项目，如拉斯维加斯会展中心地下环线。\n规模和实用性仍受质疑，介于认真工程和实验之间。",s:"来源：公司版图卡片 · 公开报道"},
- {kw:["paypal","贝宝","离开paypal","x.com"],a:"严格说他不是主动离开——在度蜜月途中**被董事会换下CEO**，后eBay收购PayPal，他作为大股东套现，这笔钱成了SpaceX和特斯拉的本金。",s:"来源：马斯克传 · 公开报道"},
- {kw:["盖茨","gates","比尔"],a:"两人关系**比较紧张**。公开摩擦点包括盖茨做空特斯拉股票、以及气候/慈善议题上的分歧，马斯克多次公开表达不满。",s:"来源：公开报道 · 双方表态"},
- {kw:["激光雷达","lidar","纯视觉","autopilot","雷达"],a:"马斯克坚持**纯视觉路线**：人开车靠眼睛+大脑，自动驾驶也该靠摄像头+神经网络，他称激光雷达是“昂贵的拐杖”。\n这是行业里争议很大的技术押注，多数对手仍用激光雷达。",s:"来源：公开发言（技术路线之争）"},
- {kw:["星链","starlink","赚钱","盈利"],a:"**星链**用户和营收持续增长，SpaceX多次表示已现金流转正/接近盈利，它也是反哺火箭研发的重要现金来源。\n因未上市财务不完全透明，**确定性：约65%**。",s:"来源：公开发言（未上市）"},
- {kw:["退休","退下","不干了"],a:"基本不打算传统意义“退休”。他多次表示想工作到做不动为止，重心放在火星等长期使命上。\n（主观表态，确定性：约70%）",s:"来源：公开访谈"},
- {kw:["xai","openai","grok"],a:"马斯克是**OpenAI联合创始人之一**，早期出资，后因方向分歧（营利化、与微软绑定）**退出并公开批评**，甚至起诉。\n之后他创立**xAI**（产品Grok），定位“更追求真相”的竞争者。两者现为对手。",s:"来源：公开报道 · xAI"}
+ {kw:["第一性","原理","first principle"],a:"**第一性原理**：不靠类比（“别人都这么做”），而是把问题拆到物理事实再往上推理。\n2012 年 WIRED 访谈原话：火箭由航空铝、钛、铜、碳纤维等构成，按大宗商品价算，材料成本约占当时市售价约 **2%**。2013 年 TED 补充定义：boil things down to their fundamental truths and reason up from there。",s:"WIRED 2012-10-21 · TED2013 · 见「第一性原理」卡片"},
+ {kw:["五步","工作法","五步法","算法","algorithm"],a:"传记记载的 **五步算法**，顺序不能反：\n**①质疑**每条需求（具名提出人）→ **②删除**零件/流程 → **③简化优化** → **④加速节拍** → **⑤最后才自动化**。\n弗里蒙特与内华达的教训是：先自动化等于把不该存在的步骤固化。若删完从来不必加回约 10%，说明删得不够。",s:"Walter Isaacson《Elon Musk》(2023) · 见「五步工作法」卡片"},
+ {kw:["格温","肖特维尔","shotwell","二把手"],a:"**格温·肖特维尔（Gwynne Shotwell）** 长期担任 SpaceX **总裁兼 COO**，负责商业订单、发射执行与日常运营。公开材料把她放在把目标翻译成合同和航班的位置。本站不编造私下对话。",s:"SpaceX 公开职务 · 关键人物卡片"},
+ {kw:["猎鹰","falcon","炸了三次","三次","爆炸"],a:"**猎鹰 1 号**三次失败都有公开根因：①2006 燃料管接腐蚀泄漏起火；②2007 二级晃动与控制耦合；③2008-08 Merlin 1C 关机后残余推力导致级间碰撞。\n**2008-09-28** 第四次入轨，是私人全额出资液体火箭首次轨道成功。",s:"SpaceX/DARPA/航天报道 · 经典案例卡片"},
+ {kw:["睡工厂","睡袋","住工厂"],a:"2018-04-02 马斯克公开说：**I'm back to sleeping at factory. Car biz is hell.**\n同期特斯拉披露 Model 3 周产约 2000 辆量级，目标 5000。Reuters 报道 **2018 年 6 月末一周**接近/达到该目标，不是「六周」。",s:"马斯克推文 2018-04-02 · Reuters 2018-07-01"},
+ {kw:["后悔","遗憾"],a:"他公开谈过某些推文和人事决定带来麻烦，但本站**没有**一条可反复核对、且被他明确称为「最大后悔」的固定原话。\n更稳妥的观察是：公开叙事里他更常把失败拆成下次要改的数据。",s:"不足以为「最大后悔」定性 · 不编造引语"},
+ {kw:["乔布斯","jobs","谁厉害"],a:"没有标准答案，这是**观点题**。\n公开对比通常是：乔布斯强在产品整合与叙事；马斯克强在第一性原理驱动的重资产工程（火箭、电车）。本站不裁定谁更厉害。",s:"综合评述（观点性，非引语）"},
+ {kw:["x æ","a-12","孩子名","儿子名字","起名"],a:"**X Æ A-12** 是马斯克与 Grimes 公开解释过的名字：X 为未知变量，Æ 与二人的写法有关，A-12 来自他们提到的侦察机。加州登记不允许数字，后改为 **X Æ A-Xii**。",s:"公开报道 · Grimes 社交媒体"},
+ {kw:["睡几","睡眠","几个小时","作息"],a:"不同年份访谈里，他多次提到大约睡 **6 小时**，并说再少效率会下降；冲刺期（如 2018 产能地狱）会睡在工厂。\n没有单一官方作息表，数字会随场合波动。",s:"多次公开访谈综述 · 非单句原话"},
+ {kw:["佩服","崇拜","偶像","敬佩"],a:"公司名来自 **尼古拉·特斯拉** 是公开事实。他在访谈里也谈过科幻与物理对他的影响。\n「最崇拜的一个人」没有稳定、可核对的唯一答案，本站不编。",s:"公开访谈综述"},
+ {kw:["twitter","推特","买推特","收购twitter","x平台"],a:"2022 年约 **440 亿美元** 收购 Twitter：要约 → 试图退出 → 诉讼压力下 10 月交割 → 改名 **X** → 大规模裁员，并有 2022-11-16 **extremely hardcore** 备忘录。是否「值」取决于估值口径，本站不做财务判决。",s:"SEC/法院报道 · The Verge 备忘录全文"},
+ {kw:["火星","starship","去火星","mars"],a:"**星舰（Starship）** 是他公开的火星运输方案。时间表历史上多次推迟，应以飞行测试进展为准，而不是某次演讲里的年份。\nSN15（2021-05-05）完成原型机起降，只是迭代中的一环。",s:"TED2013 可复用论证 · SpaceX 公开试飞"},
+ {kw:["ai风险","人工智能风险","ai危险","怎么看ai"],a:"马斯克长期公开警告 AI 风险，曾参与 **OpenAI** 早期阶段，后退出并批评其方向，2023 年创立 **xAI**（产品 Grok）。\n「人类最大威胁」这类措辞在多次访谈/听证中出现，细节以当时记录为准。",s:"公开访谈 · xAI 创立公告"},
+ {kw:["最喜欢","喜欢哪","车型","哪辆车"],a:"他在不同场合称赞过不同车型（包括高性能 Model S 与 Cybertruck），**没有**一条能当「终身最爱」的稳定原话。\n主观偏好会变，本站不编排行榜。",s:"公开场合综述（主观）"},
+ {kw:["最失败的收购","失败的收购","收购失败"],a:"外界争议最大的是 **Twitter/X**：高价、交割冲突、随后组织与估值争议。马斯克方面则强调长期平台与数据/AI 布局。\n「最失败」是评价，不是可证伪的工程事实。",s:"公开报道（评价性）"},
+ {kw:["对员工","员工要求","加班","工作强度","hardcore"],a:"2022-11-16 备忘录原话：we will need to be **extremely hardcore**. This will mean working long hours at high intensity.\n2018 年特斯拉邮件则要求沟通走最短路径，不许用指挥链挡信息。工作强度本身有大量争议。",s:"The Verge 2022-11-16 · Electrek 2018-04-17"},
+ {kw:["穆勒","muller","mueller","发动机之父"],a:"**汤姆·穆勒（Tom Mueller）** 是 SpaceX 1 号员工、Merlin 等发动机主导者。\n旧版说「被解雇」是错的：他于 **2020-11-30** 公开声明退休，后创办 **Impulse Space**。",s:"本人声明 · 关键人物卡片"},
+ {kw:["弟弟","金巴尔","kimbal","兄弟"],a:"弟弟**金巴尔·马斯克**是 Zip2 早期合伙人。公开传记写过两人起步阶段挤办公室写代码。后来做餐饮/食品，并长期出现在特斯拉董事名单中。",s:"公开传记 / 董事披露"},
+ {kw:["母亲","妈妈","梅耶","maye"],a:"母亲**梅耶·马斯克**公开谈过单亲抚养与工作经历。旧版把「你可以做任何事」写成家训原话，本站找不到可核对的同一句，故不再当引语使用。",s:"公开传记与本人著作 · 非伪造家训"},
+ {kw:["管理两家","两家公司","同时管","分配时间","多家公司"],a:"可核对的方法包括：2018 邮件里的**最短路径沟通**、产能地狱时的**现场睡工厂**、SpaceX 日常由 **Shotwell** 主持运营。\n不是一份官方时间表，而是公开可见的分工与沟通规则。",s:"Electrek 2018-04-17 · 关键人物卡片"},
+ {kw:["中国建厂","建厂","上海","中国工厂","超级工厂"],a:"特斯拉**上海超级工厂**是公开事实：2019 年起投产，此后成为重要产能与出口基地。\n是否再扩建属于滚动新闻，请查最新公司披露。",s:"公开事实（上海工厂已建成）"},
+ {kw:["比亚迪","byd"],a:"2011 年前后他曾在访谈里对比亚迪产品表示不以为然，这段被反复引用。后来中国电动车竞争格局变化，他在公开场合的口吻也有过调整。\n本站不把态度变化编成某句「认输」语录。",s:"公开访谈综述（前后态度有变化）"},
+ {kw:["脑机","neuralink","商用","植入","芯片"],a:"**Neuralink** 于 2024-01-29 由马斯克宣布首位人体受试者已植入并恢复良好（Reuters）。后续公开身份为 PRIME 研究参与者 Noland Arbaugh。\n大规模健康人增强没有可靠商用时间表。",s:"Reuters 2024-01-29 · 公司版图卡片"},
+ {kw:["隧道","boring","玩具","挖隧道","无聊公司"],a:"**The Boring Company** 名字带玩笑，但拉斯维加斯会展中心（LVCC）地下环线是已公开运营的项目。\n它有没有「解决城市拥堵」仍是开放问题。",s:"公司公开项目 · 公司版图卡片"},
+ {kw:["paypal","贝宝","离开paypal","x.com"],a:"2000 年他在度蜜月期间被 PayPal 董事会换下 CEO，后 eBay 收购，他作为股东套现。这笔钱后来成为 SpaceX 与特斯拉的启动资本——这是公开传记与当时报道的主线。",s:"公开传记与当代报道"},
+ {kw:["盖茨","gates","比尔"],a:"两人有过公开摩擦（包括盖茨做空特斯拉股票的报道，以及气候/慈善议题上的互怼）。关系紧张是公开事实，细节以当时采访为准，本站不编对话。",s:"公开报道 · 双方表态"},
+ {kw:["激光雷达","lidar","纯视觉","autopilot","雷达"],a:"马斯克长期主张摄像头 + 神经网络的**纯视觉**路线，并在 Autonomy Day 等场合把激光雷达说成不必要的拐杖/fool's errand。\n这是有争议的工程押注，多数对手仍使用激光雷达。",s:"Tesla Autonomy Day 等公开发言"},
+ {kw:["星链","starlink","赚钱","盈利"],a:"**Starlink** 是 SpaceX 的卫星互联网业务，用户与收入在公开声明/财报口径里持续增长，并被用来反哺火箭研发。\n具体利润数字随披露文件变化，本站不编造未经核对的盈利额。",s:"SpaceX 公开声明 / 后续披露文件"},
+ {kw:["退休","退下","不干了"],a:"他多次公开表示还要继续做火星与可持续能源相关的长期项目，不像传统「退休」。这是表态，不是劳动合同。",s:"公开访谈表态"},
+ {kw:["xai","openai","grok"],a:"马斯克是 **OpenAI** 早期资助者/联合创始人之一，后因方向（营利化、与微软绑定等）退出并公开批评。\n2023 年创立 **xAI**，产品 **Grok**，与 X 平台有分发关系。",s:"公开报道 · xAI 创立公告"}
 ];
-const FALLBACK="这个问题我在知识库里暂时找不到可靠来源，先不编。\n你可以点右上角 ⚙ 配置后端接口，接入真实模型来回答更开放的问题。";
+const FALLBACK="这个问题我在知识库里暂时找不到可靠来源，先不编。\n可以点卡片展开看原话，或点右上角 ⚙ 配置后端接口回答更开放的问题。";
 
 const KBENTITIES=[...concepts,...people,...cases,...companies]
   .map(x=>({name:x.name,id:x.id})).sort((a,b)=>b.name.length-a.name.length);
-function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
 function fmt(text){
   let o=esc(text).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>");
   KBENTITIES.forEach(e=>{
@@ -830,6 +980,8 @@ chatBody.addEventListener("click",e=>{ const k=e.target.closest(".kb"); if(k){ c
 // restore history + mode on load
 refreshMode();
 chatLog.forEach(renderMsg);
+document.getElementById("lastUpdated").textContent = LAST_UPDATED;
+document.getElementById("footerUpdated").textContent = LAST_UPDATED;
 
 </script>
 </body>
