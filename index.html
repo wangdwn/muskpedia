@@ -262,6 +262,7 @@
     <a data-target="people">关键人物</a>
     <a data-target="cases">经典案例</a>
     <a data-target="companies">公司版图</a>
+    <a href="reading-notes.html">📚 读书笔记</a>
     <a data-target="sources">来源</a>
     <a data-mode="graph">🕸️ 知识图谱</a>
   </div>
@@ -276,7 +277,7 @@
     <div class="eyebrow">FIRST PRINCIPLES // 物理层 → 工程层</div>
     <h1>从物理层 <span class="arrow">→</span> 到工程层</h1>
     <div class="sub">第一性原理 <b>×</b> 五步工作法 <b>×</b> 风险不对称决策</div>
-    <div class="updated">内容修订 · 上次更新 <b id="lastUpdated">2026-09-04</b> · 引语均标注出处，综述不加引号</div>
+    <div class="updated">内容修订 · 上次更新 <b id="lastUpdated">2026-09-22</b> · 引语均标注出处，综述不加引号</div>
   </div>
 </header>
 
@@ -288,6 +289,17 @@
 <main>
   <!-- LIST VIEW -->
   <div id="listView">
+    <section id="columns">
+      <div class="sec-head"><h2>专栏</h2><span class="tag">独立长文 · 持续更新</span></div>
+      <div class="grid cols">
+        <a class="card" href="reading-notes.html" data-search="读书笔记 专栏 精读 书架 奇点更近 库兹韦尔 判断 笔记 姚班">
+          <h3>📚 读书笔记</h3>
+          <div class="def">姚班式精读：啃一手、抓定律、连工作、出判断。已收录《奇点更近》——42 条笔记 · 19 条判断 · 一篇 500 字创作。</div>
+          <div class="note">2026-09-21 更新 · 判断与引文分离标注</div>
+        </a>
+      </div>
+    </section>
+
     <section id="concepts">
       <div class="sec-head"><h2>核心概念</h2><span class="tag">公开访谈与工程实践 · 非虚构引语计数</span></div>
       <div class="grid cols" id="conceptsGrid"></div>
@@ -340,7 +352,7 @@
 
 <footer>
   一个独立知识库 · 引语来自公开访谈、TED 演讲、WIRED、艾萨克森《Elon Musk》(2023) 及被刊载的内部备忘录<br>
-  上次更新 <span class="hl" id="footerUpdated">2026-09-04</span> · Made with <span class="hl">First Principles</span>
+  上次更新 <span class="hl" id="footerUpdated">2026-09-22</span> · 专栏：<a href="reading-notes.html" style="color:var(--green)">读书笔记</a> · Made with <span class="hl">First Principles</span>
 </footer>
 
 <button id="chatFab">🤖<span class="fabtext"> 问马斯克</span></button>
@@ -369,7 +381,7 @@
 
 <script>
 /* ============ DATA ============ */
-const LAST_UPDATED = "2026-09-04";
+const LAST_UPDATED = "2026-09-22";
 
 const bibliography = [
   {title:"Elon Musk's Mission to Mars",meta:"Chris Anderson 访谈 · WIRED · 2012-10-21",url:"https://www.wired.com/2012/10/ff-elon-musk-qa/",note:"第一性原理与火箭原材料成本约占市售价 2% 的原话出处。"},
