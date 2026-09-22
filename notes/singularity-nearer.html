@@ -2,15 +2,17 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#0f1312">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>《奇点更近》读书笔记 · 42 条笔记与 19 条判断</title>
 <meta name="description" content="《奇点更近》全书精读笔记：六条主线、19 条批判性判断、42 条带页码的原书摘录，以及 500 字创作《斗争中的共和》。">
 <style>
   :root{
-    --bg:#0a0a0a; --card:#141414; --card-edge:#1f1f1f;
-    --green:#00ff41; --green-dim:#0a6e23;
-    --orange:#ff6600; --red:#ff3333; --blue:#3399ff;
-    --text:#e0e0e0; --muted:#7a7a7a;
+  color-scheme:dark;
+    --bg:#0f1312; --card:#161b1a; --card-edge:#252d2b;
+    --green:#5fd0a0; --green-dim:#2b6b52;
+    --orange:#e3a15c; --red:#e07a7a; --blue:#77b3e0;
+    --text:#e6ebe9; --muted:#9aa5a1;
     --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
   }
@@ -19,31 +21,31 @@
   body{background:var(--bg); color:var(--text); font-family:var(--sans); line-height:1.7;
     -webkit-font-smoothing:antialiased; overflow-x:hidden}
   body::after{content:""; position:fixed; inset:0; pointer-events:none; z-index:9999;
-    background:repeating-linear-gradient(0deg,rgba(0,255,65,0.02) 0 1px,transparent 1px 3px);
-    mix-blend-mode:screen; opacity:.5}
+    background:repeating-linear-gradient(0deg,rgba(95,208,160,0.012) 0 1px,transparent 1px 3px);
+    mix-blend-mode:screen; opacity:.25}
   a{color:inherit;text-decoration:none}
 
   nav{position:sticky; top:0; z-index:100; background:rgba(10,10,10,.92); backdrop-filter:blur(8px);
     border-bottom:2px solid var(--green-dim); display:flex; align-items:center; gap:18px;
     padding:12px 22px; flex-wrap:wrap}
   .logo{font-family:var(--mono); font-weight:700; color:var(--green); font-size:.95rem; letter-spacing:.5px;
-    text-shadow:0 0 12px rgba(0,255,65,.5); white-space:nowrap}
+    text-shadow:0 0 10px rgba(95,208,160,0.16); white-space:nowrap}
   .navlinks{display:flex; gap:14px; font-family:var(--mono); font-size:.76rem; flex-wrap:wrap; margin-left:auto}
-  .navlinks a{color:var(--muted); transition:color .15s}
+  .navlinks a{color:var(--muted); transition:color .15s; white-space:nowrap; flex:0 0 auto}
   .navlinks a:hover{color:var(--green)}
 
   header.hero{padding:56px 22px 40px; border-bottom:2px solid var(--card-edge); position:relative; overflow:hidden}
   .hexbg{position:absolute; inset:0; opacity:.5;
     background-image:
-      repeating-linear-gradient(60deg, rgba(0,255,65,.05) 0 1px, transparent 1px 44px),
-      repeating-linear-gradient(-60deg, rgba(0,255,65,.05) 0 1px, transparent 1px 44px),
-      repeating-linear-gradient(0deg, rgba(0,255,65,.04) 0 1px, transparent 1px 38px);
+      repeating-linear-gradient(60deg, rgba(95,208,160,0.031) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(-60deg, rgba(95,208,160,0.031) 0 1px, transparent 1px 44px),
+      repeating-linear-gradient(0deg, rgba(95,208,160,0.025) 0 1px, transparent 1px 38px);
     -webkit-mask-image:radial-gradient(ellipse 70% 90% at 30% 30%, #000 0%, transparent 75%);
     mask-image:radial-gradient(ellipse 70% 90% at 30% 30%, #000 0%, transparent 75%)}
   .hero-inner{position:relative; max-width:1000px; margin:0 auto}
   .eyebrow{font-family:var(--mono); color:var(--green); font-size:.72rem; letter-spacing:3px; margin-bottom:14px}
   h1{font-family:var(--mono); font-weight:800; font-size:clamp(1.5rem,4.6vw,2.4rem); color:#fff; line-height:1.25;
-    text-shadow:0 0 22px rgba(0,255,65,.3)}
+    text-shadow:0 0 18px rgba(95,208,160,0.10)}
   .byline{font-family:var(--mono); font-size:.76rem; color:var(--muted); margin-top:14px; line-height:1.9}
   .byline b{color:var(--green); font-weight:600}
 
