@@ -15,6 +15,7 @@
     --text:#e6ebe9; --muted:#9aa5a1;
     --mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
     --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    --serif:"Songti SC","STSong","SimSun","Noto Serif SC",Georgia,serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -131,6 +132,35 @@
     font-size:.66rem; color:var(--muted); line-height:1.5}
   .quote a,.more a,.src-list a{color:var(--green); text-decoration:underline; text-underline-offset:2px}
   .note{font-family:var(--mono); font-size:.72rem; color:#666; margin-top:10px; line-height:1.55}
+
+  /* ---------- 古文典籍 / 命理 · 古风阅读入口 ---------- */
+  .card.classic{
+    background:linear-gradient(160deg,#f7f1e3 0%,#efe6d0 100%);
+    border:1px solid #c9b58a; border-left:4px solid #a0522d;
+    color:#3a3226; cursor:pointer; font-family:var(--serif);
+  }
+  .card.classic:hover{border-left-color:#8b3a2a; transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(90,60,30,.18)}
+  .card.classic h3{font-family:var(--serif); color:#5b3a1e; font-size:1.18rem}
+  .card.classic .def{color:#4a4032}
+  .card.classic .tagpill{display:inline-block; font-family:var(--serif);
+    font-size:.72rem; color:#8b3a2a; border:1px solid #c9a37a; padding:2px 8px;
+    margin:0 6px 8px 0; letter-spacing:1px; border-radius:2px}
+  .card.classic .meta2{font-family:var(--serif); font-size:.76rem; color:#8a7a5c; margin-top:10px}
+
+  .card.mingli{
+    background:linear-gradient(160deg,#1c1812 0%,#14100c 100%);
+    border:1px solid #4a3f2a; border-left:4px solid #c9a227;
+    color:#e8dcc0; cursor:pointer; font-family:var(--serif);
+  }
+  .card.mingli:hover{border-left-color:#e0b84c; transform:translateY(-2px);
+    box-shadow:0 6px 20px rgba(200,160,40,.15)}
+  .card.mingli h3{font-family:var(--serif); color:#e8c96a; font-size:1.18rem}
+  .card.mingli .def{color:#cbbd9a}
+  .card.mingli .tagpill{display:inline-block; font-family:var(--serif);
+    font-size:.72rem; color:#e0b84c; border:1px solid #6a5a2a; padding:2px 8px;
+    margin:0 6px 8px 0; letter-spacing:1px; border-radius:2px}
+  .card.mingli .meta2{font-family:var(--serif); font-size:.76rem; color:#8a7a5c; margin-top:10px}
   .hero .updated{margin-top:16px; font-family:var(--mono); font-size:.72rem; color:var(--muted); letter-spacing:1px}
   .hero .updated b{color:var(--green); font-weight:600}
   .src-list{list-style:none; display:grid; gap:10px; margin-top:8px}
@@ -267,6 +297,8 @@
     <a data-target="cases">经典案例</a>
     <a data-target="companies">公司版图</a>
     <a href="reading-notes.html">📚 读书笔记</a>
+    <a href="/classics/">📖 古文典籍</a>
+    <a href="/mingli-lab/">🔮 命理</a>
     <a data-target="sources">来源</a>
     <a data-mode="graph">🕸️ 知识图谱</a>
   </div>
@@ -281,7 +313,7 @@
     <div class="eyebrow">FIRST PRINCIPLES // 物理层 → 工程层</div>
     <h1>从物理层 <span class="arrow">→</span> 到工程层</h1>
     <div class="sub">第一性原理 <b>×</b> 五步工作法 <b>×</b> 风险不对称决策</div>
-    <div class="updated">内容修订 · 上次更新 <b id="lastUpdated">2026-09-22</b> · 引语均标注出处，综述不加引号</div>
+    <div class="updated">内容修订 · 上次更新 <b id="lastUpdated">2026-09-25</b> · 引语均标注出处，综述不加引号</div>
   </div>
 </header>
 
@@ -300,6 +332,22 @@
           <h3>📚 读书笔记</h3>
           <div class="def">姚班式精读：啃一手、抓定律、连工作、出判断。已收录《奇点更近》——42 条笔记 · 19 条判断 · 一篇 500 字创作。</div>
           <div class="note">2026-09-21 更新 · 判断与引文分离标注</div>
+        </a>
+        <a class="card classic" href="/classics/" data-search="古文典籍 古典名著 金瓶梅 史记 资治通鉴 阅读 原文 典籍 兰陵笑笑生 司马迁 司马光">
+          <h3>📖 古文典籍</h3>
+          <div>
+            <span class="tagpill">金瓶梅</span><span class="tagpill">史记</span><span class="tagpill">资治通鉴</span>
+          </div>
+          <div class="def">古典名著原文阅读站——金瓶梅词话 100 回 · 史记 130 篇 · 资治通鉴 294 卷，公有领域原文，移动端友好，字号可调。</div>
+          <div class="meta2">全屏翻页 · 跨作品检索 · 底本可溯</div>
+        </a>
+        <a class="card mingli" href="/mingli-lab/" data-search="命理 八字 排盘 铁板神数 紫微 风水 易经 周易 命例 子平 邵雍 渊海子平 三命通会">
+          <h3>🔮 命理</h3>
+          <div>
+            <span class="tagpill">八字排盘</span><span class="tagpill">铁板神数</span><span class="tagpill">历史命例</span>
+          </div>
+          <div class="def">命理学数字实验室——八字排盘、铁板神数、条文检索、历史命例对比，纯学术研究用途。</div>
+          <div class="meta2">子平术 · 邵雍数理 · 深黑金</div>
         </a>
       </div>
     </section>
@@ -356,7 +404,7 @@
 
 <footer>
   一个独立知识库 · 引语来自公开访谈、TED 演讲、WIRED、艾萨克森《Elon Musk》(2023) 及被刊载的内部备忘录<br>
-  上次更新 <span class="hl" id="footerUpdated">2026-09-22</span> · 专栏：<a href="reading-notes.html" style="color:var(--green)">读书笔记</a> · Made with <span class="hl">First Principles</span>
+  上次更新 <span class="hl" id="footerUpdated">2026-09-25</span> · 专栏：<a href="reading-notes.html" style="color:var(--green)">读书笔记</a> · Made with <span class="hl">First Principles</span>
 </footer>
 
 <button id="chatFab">🤖<span class="fabtext"> 问马斯克</span></button>
@@ -385,7 +433,7 @@
 
 <script>
 /* ============ DATA ============ */
-const LAST_UPDATED = "2026-09-22";
+const LAST_UPDATED = "2026-09-25";
 
 const bibliography = [
   {title:"Elon Musk's Mission to Mars",meta:"Chris Anderson 访谈 · WIRED · 2012-10-21",url:"https://www.wired.com/2012/10/ff-elon-musk-qa/",note:"第一性原理与火箭原材料成本约占市售价 2% 的原话出处。"},
