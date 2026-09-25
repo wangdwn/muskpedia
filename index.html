@@ -161,6 +161,14 @@
     font-size:.72rem; color:#e0b84c; border:1px solid #6a5a2a; padding:2px 8px;
     margin:0 6px 8px 0; letter-spacing:1px; border-radius:2px}
   .card.mingli .meta2{font-family:var(--serif); font-size:.76rem; color:#8a7a5c; margin-top:10px}
+
+  /* 私人收藏（公私区别） */
+  .card.private{border-style:dashed}
+  .card .locktag{display:inline-block; font-family:var(--sans); font-size:.64rem;
+    color:#b8860b; border:1px solid #b8860b; padding:1px 7px; border-radius:3px;
+    margin-left:8px; vertical-align:2px; letter-spacing:1px; font-weight:600}
+  .card.classic .locktag{color:#8b3a2a; border-color:#c9a37a}
+  .card.mingli .locktag{color:#e0b84c; border-color:#6a5a2a}
   .hero .updated{margin-top:16px; font-family:var(--mono); font-size:.72rem; color:var(--muted); letter-spacing:1px}
   .hero .updated b{color:var(--green); font-weight:600}
   .src-list{list-style:none; display:grid; gap:10px; margin-top:8px}
@@ -297,8 +305,8 @@
     <a data-target="cases">经典案例</a>
     <a data-target="companies">公司版图</a>
     <a href="reading-notes.html">📚 读书笔记</a>
-    <a href="/classics/">📖 古文典籍</a>
-    <a href="/mingli-lab/">🔮 命理</a>
+    <a href="https://github.com/wangdwn/classics" target="_blank" rel="noopener noreferrer">📖 古文典籍<span style="font-size:.7rem">🔒</span></a>
+    <a href="https://github.com/wangdwn/mingli-lab" target="_blank" rel="noopener noreferrer">🔮 命理<span style="font-size:.7rem">🔒</span></a>
     <a data-target="sources">来源</a>
     <a data-mode="graph">🕸️ 知识图谱</a>
   </div>
@@ -333,21 +341,21 @@
           <div class="def">姚班式精读：啃一手、抓定律、连工作、出判断。已收录《奇点更近》——42 条笔记 · 19 条判断 · 一篇 500 字创作。</div>
           <div class="note">2026-09-21 更新 · 判断与引文分离标注</div>
         </a>
-        <a class="card classic" href="/classics/" data-search="古文典籍 古典名著 金瓶梅 史记 资治通鉴 阅读 原文 典籍 兰陵笑笑生 司马迁 司马光">
-          <h3>📖 古文典籍</h3>
+        <a class="card classic private" href="https://github.com/wangdwn/classics" target="_blank" rel="noopener noreferrer" data-search="古文典籍 古典名著 金瓶梅 史记 资治通鉴 阅读 原文 典籍 私人收藏 私有 登录">
+          <h3>📖 古文典籍<span class="locktag">🔒 私人收藏</span></h3>
           <div>
             <span class="tagpill">金瓶梅</span><span class="tagpill">史记</span><span class="tagpill">资治通鉴</span>
           </div>
-          <div class="def">古典名著原文阅读站——金瓶梅词话 100 回 · 史记 130 篇 · 资治通鉴 294 卷，公有领域原文，移动端友好，字号可调。</div>
-          <div class="meta2">全屏翻页 · 跨作品检索 · 底本可溯</div>
+          <div class="def">古典名著原文阅读站——金瓶梅词话 100 回 · 史记 130 篇 · 资治通鉴 294 卷。私有仓库，登录 GitHub 后可见。</div>
+          <div class="meta2">🔒 私人收藏 · 点击进入仓库（需登录）</div>
         </a>
-        <a class="card mingli" href="/mingli-lab/" data-search="命理 八字 排盘 铁板神数 紫微 风水 易经 周易 命例 子平 邵雍 渊海子平 三命通会">
-          <h3>🔮 命理</h3>
+        <a class="card mingli private" href="https://github.com/wangdwn/mingli-lab" target="_blank" rel="noopener noreferrer" data-search="命理 八字 排盘 铁板神数 紫微 风水 易经 周易 命例 子平 邵雍 私人收藏 私有 登录">
+          <h3>🔮 命理<span class="locktag">🔒 私人收藏</span></h3>
           <div>
             <span class="tagpill">八字排盘</span><span class="tagpill">铁板神数</span><span class="tagpill">历史命例</span>
           </div>
-          <div class="def">命理学数字实验室——八字排盘、铁板神数、条文检索、历史命例对比，纯学术研究用途。</div>
-          <div class="meta2">子平术 · 邵雍数理 · 深黑金</div>
+          <div class="def">命理学数字实验室——八字排盘、铁板神数、条文检索、历史命例对比。私有仓库，登录 GitHub 后可见。</div>
+          <div class="meta2">🔒 私人收藏 · 点击进入仓库（需登录）</div>
         </a>
       </div>
     </section>
